@@ -76,12 +76,10 @@ router.patch('/orders/:id/status', adminAuth, async (req, res) => {
         order.status = status;
         await order.save();
 
-        // Send status update email to customer
-        try {
-            await sendStatusUpdate(order);
-        } catch (emailError) {
+        // Send status update email to customer (non-blocking)
+        sendStatusUpdate(order).catch((emailError) => {
             console.error('Status update email error:', emailError);
-        }
+        });
 
         res.json({ message: 'Order status updated.', order });
     } catch (error) {

@@ -87,15 +87,13 @@ router.post('/verify', async (req, res) => {
         order.status = 'paid';
         await order.save();
 
-        // Send emails (non-blocking — don't fail the response if emails fail)
-        try {
-            await Promise.all([
-                sendCustomerConfirmation(order),
-                sendAdminNotification(order),
-            ]);
-        } catch (emailError) {
+        // Send emails truly non-blocking — don't await so we respond to the client immediately
+        Promise.all([
+            sendCustomerConfirmation(order),
+            sendAdminNotification(order),
+        ]).catch((emailError) => {
             console.error('Email sending error:', emailError);
-        }
+        });
 
         res.json({
             message: 'Payment verified successfully.',
