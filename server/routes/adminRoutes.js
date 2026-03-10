@@ -27,6 +27,43 @@ router.post('/login', async (req, res) => {
     }
 });
 
+// GET /api/admin/test-email — Test Nodemailer SMTP connection
+router.get('/test-email', async (req, res) => {
+    try {
+        const nodemailer = require('nodemailer');
+        const transporter = nodemailer.createTransport({
+            service: 'gmail',
+            auth: {
+                user: process.env.EMAIL_USER,
+                pass: process.env.EMAIL_PASS,
+            },
+        });
+
+        await transporter.verify();
+        
+        const info = await transporter.sendMail({
+            from: process.env.EMAIL_USER,
+            to: process.env.ADMIN_EMAIL || process.env.EMAIL_USER,
+            subject: 'ProjectBuildr Render SMTP Test',
+            text: 'If you are reading this, Nodemailer is successfully authenticated on Render.',
+        });
+
+        res.json({ success: true, message: 'SMTP connected and test email sent!', info });
+    } catch (error) {
+        console.error('SMTP Error:', error);
+        res.status(500).json({ 
+            success: false, 
+            message: 'SMTP connection failed', 
+            error: error.message,
+            stack: error.stack,
+            envVars: {
+                hasUser: !!process.env.EMAIL_USER,
+                hasPass: !!process.env.EMAIL_PASS
+            }
+        });
+    }
+});
+
 // GET /api/admin/orders — Get all orders (supports ?status= filter)
 router.get('/orders', adminAuth, async (req, res) => {
     try {
