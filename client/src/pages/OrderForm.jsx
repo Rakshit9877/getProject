@@ -145,29 +145,39 @@ export default function OrderForm() {
                     description: `${formData.complexityLevel} Project — ${formData.projectTitle}`,
                     order_id: razorpayOrderId,
                     handler: function (response) {
-                        // Detach from Razorpay's execution stack so it can safely tear down its UI
-                        setTimeout(async () => {
-                            try {
-                                const verifyRes = await axios.post(`${API}/api/payment/verify`, {
-                                    razorpay_order_id: response.razorpay_order_id,
-                                    razorpay_payment_id: response.razorpay_payment_id,
-                                    razorpay_signature: response.razorpay_signature,
-                                    mongoId,
-                                })
-
-                                // Store success data in sessionStorage
+                        setPaymentLoading(true)
+                        
+                        // Fire-and-forget native fetch specifically to escape React's event loop
+                        // because Razorpay's iframe teardown crashes React otherwise.
+                        fetch(`${API}/api/payment/verify`, {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify({
+                                razorpay_order_id: response.razorpay_order_id,
+                                razorpay_payment_id: response.razorpay_payment_id,
+                                razorpay_signature: response.razorpay_signature,
+                                mongoId
+                            })
+                        })
+                        .then(res => res.json())
+                        .then(data => {
+                            if(data.success) {
                                 sessionStorage.setItem('orderSuccess', JSON.stringify({
-                                    orderId: verifyRes.data.orderId,
-                                    projectTitle: verifyRes.data.projectTitle,
+                                    orderId: data.orderId,
+                                    projectTitle: data.projectTitle,
                                     email: formData.email,
                                 }))
-                                window.location.href = '/success'
-                            } catch (err) {
-                                console.error('Payment verification error:', err)
-                                alert('Payment verification failed. Please contact support with your payment reference.')
-                                setPaymentLoading(false)
+                                // Hard browser redirect, completely bypassing React Router
+                                window.location.replace('/success')
+                            } else {
+                                throw new Error('Verification failed on server')
                             }
-                        }, 100)
+                        })
+                        .catch(err => {
+                            console.error('Payment verification error:', err)
+                            alert('Payment verification failed! Pls contact support with your payment ID.')
+                            setPaymentLoading(false)
+                        })
                     },
                     prefill: {
                         name: formData.name,
