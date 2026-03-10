@@ -64,11 +64,12 @@ export default function LandingPage() {
             <nav className="fixed top-0 left-0 right-0 z-50 bg-navy-950/80 backdrop-blur-xl border-b border-white/5">
                 <div className="section-container flex items-center justify-between h-16">
                     <span className="text-xl font-bold bg-gradient-to-r from-white to-navy-300 bg-clip-text text-transparent">
-                        ProjectBuildr
+                        ProjexLab
                     </span>
                     <div className="flex items-center gap-4">
                         <a href="#pricing" className="btn-ghost text-sm hidden sm:inline-flex">Pricing</a>
                         <a href="#faq" className="btn-ghost text-sm hidden sm:inline-flex">FAQ</a>
+                        <Link to="/track" className="btn-ghost text-sm hidden sm:inline-flex">Track Order</Link>
                         <Link to="/admin" className="btn-ghost text-sm hidden sm:inline-flex">Admin</Link>
                         <Link to="/order" className="btn-primary text-sm !py-2 !px-5">Get Started</Link>
                     </div>
@@ -237,13 +238,13 @@ export default function LandingPage() {
             <footer className="py-12 border-t border-white/5">
                 <div className="section-container text-center">
                     <span className="text-xl font-bold bg-gradient-to-r from-white to-navy-300 bg-clip-text text-transparent">
-                        ProjectBuildr
+                        ProjexLab
                     </span>
                     <p className="text-navy-400 text-sm mt-4 mb-2">Custom project builds for university students</p>
                     <a href="mailto:contact@projectbuildr.com" className="text-navy-500 hover:text-navy-400 text-sm transition-colors">
                         contact@projectbuildr.com
                     </a>
-                    <p className="text-navy-500/50 text-xs mt-6">© {new Date().getFullYear()} ProjectBuildr. All rights reserved.</p>
+                    <p className="text-navy-500/50 text-xs mt-6">© {new Date().getFullYear()} ProjexLab. All rights reserved.</p>
                 </div>
             </footer>
         </div>

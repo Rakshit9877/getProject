@@ -8,6 +8,7 @@ const cors = require('cors');
 const orderRoutes = require('./routes/orderRoutes');
 const paymentRoutes = require('./routes/paymentRoutes');
 const adminRoutes = require('./routes/adminRoutes');
+const couponRoutes = require('./routes/couponRoutes');
 const { pricing, complexityDescriptions } = require('./config/pricing');
 
 const app = express();
@@ -25,6 +26,7 @@ app.use(express.json());
 app.use('/api/orders', orderRoutes);
 app.use('/api/payment', paymentRoutes);
 app.use('/api/admin', adminRoutes);
+app.use('/api/coupons', couponRoutes);
 
 // Public config endpoint (pricing + github username for the frontend)
 app.get('/api/config', (req, res) => {
@@ -53,10 +55,27 @@ if (missingVars.length > 0) {
 
 console.log(`🔧 Starting server on port ${PORT}...`);
 
+// Seed test coupon
+async function seedCoupons() {
+    const Coupon = require('./models/Coupon');
+    const exists = await Coupon.findOne({ code: 'TEST_COUPON' });
+    if (!exists) {
+        await Coupon.create({
+            code: 'TEST_COUPON',
+            discountType: 'percentage',
+            discountValue: 100,
+            maxUses: null,
+            isActive: true,
+        });
+        console.log('🎟️  Seeded TEST_COUPON (100% discount)');
+    }
+}
+
 mongoose
     .connect(process.env.MONGODB_URI)
-    .then(() => {
+    .then(async () => {
         console.log('✅ Connected to MongoDB');
+        await seedCoupons();
         app.listen(PORT, () => {
             console.log(`🚀 Server running on port ${PORT}`);
         });

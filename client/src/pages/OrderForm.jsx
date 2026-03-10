@@ -36,6 +36,7 @@ export default function OrderForm() {
   const [config, setConfig] = useState(null)
   const [loading, setLoading] = useState(false)
   const [paymentLoading, setPaymentLoading] = useState(false)
+  const [coupon, setCoupon] = useState(null)
 
   useEffect(() => {
     axios.get(`${API}/api/config`).then(res => setConfig(res.data)).catch(console.error)
@@ -124,9 +125,31 @@ export default function OrderForm() {
         referenceWebsites: formData.referenceWebsites,
         githubRepoUrl: formData.githubRepoUrl.trim(),
         collaboratorConfirmed: formData.collaboratorConfirmed,
+        couponCode: coupon?.code || null,
       })
 
       const { orderId, amount } = initiateRes.data
+
+      // If amount is 0 (100% coupon), skip Razorpay entirely
+      if (amount <= 0) {
+        // Directly mark as paid via a special verify call
+        const verifyRes = await axios.post(`${API}/api/payment/verify`, {
+          razorpay_order_id: 'coupon_free',
+          razorpay_payment_id: 'coupon_free_' + orderId,
+          razorpay_signature: 'coupon_free',
+          orderId,
+          skipSignature: true,
+        })
+
+        navigate('/success', {
+          state: {
+            order: verifyRes.data.order,
+            formData: { ...formData, techStack },
+          }
+        })
+        setPaymentLoading(false)
+        return
+      }
 
       // 2. Create Razorpay order
       const paymentRes = await axios.post(`${API}/api/payment/create-order`, {
@@ -149,7 +172,7 @@ export default function OrderForm() {
         key: keyId,
         amount: amount * 100,
         currency: 'INR',
-        name: 'ProjectBuildr',
+        name: 'ProjexLab',
         description: `${formData.complexityLevel} Project — ${formData.projectTitle}`,
         order_id: razorpayOrderId,
         handler: async function (response) {
@@ -204,7 +227,7 @@ export default function OrderForm() {
         {/* Header */}
         <div className="text-center mb-8">
           <a href="/" className="inline-block text-xl font-bold bg-gradient-to-r from-white to-navy-300 bg-clip-text text-transparent mb-6">
-            ProjectBuildr
+            ProjexLab
           </a>
           <h1 className="text-2xl sm:text-3xl font-bold mb-2">Place Your Order</h1>
           <p className="text-navy-400 text-sm">Fill in your project details to get started</p>
@@ -249,7 +272,7 @@ export default function OrderForm() {
           {currentStep === 0 && <StepOne formData={formData} updateField={updateField} errors={errors} />}
           {currentStep === 1 && <StepTwo formData={formData} updateField={updateField} errors={errors} />}
           {currentStep === 2 && <StepThree formData={formData} updateField={updateField} errors={errors} githubUsername={config?.githubUsername || 'loading...'} />}
-          {currentStep === 3 && <StepFour formData={formData} price={price} config={config} onPay={handlePayment} paymentLoading={paymentLoading} />}
+          {currentStep === 3 && <StepFour formData={formData} price={price} config={config} onPay={handlePayment} paymentLoading={paymentLoading} coupon={coupon} setCoupon={setCoupon} />}
 
           {/* Navigation Buttons */}
           <div className="flex items-center justify-between mt-8 pt-6 border-t border-white/10">

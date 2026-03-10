@@ -18,11 +18,15 @@ const orderSchema = new mongoose.Schema({
     githubRepoUrl: { type: String, required: true },
     collaboratorConfirmed: { type: Boolean, default: false },
     amount: { type: Number },
+    couponCode: { type: String },
+    discountApplied: { type: Number, default: 0 },
     status: {
         type: String,
-        enum: ['pending', 'paid', 'in_progress', 'completed', 'refunded'],
+        enum: ['pending', 'pending_verification', 'paid', 'collaborator_verified', 'in_progress', 'review_testing', 'completed', 'refunded'],
         default: 'pending',
     },
+    statusMessage: { type: String },
+    statusUpdatedAt: { type: Date },
     createdAt: { type: Date, default: Date.now },
 });
 

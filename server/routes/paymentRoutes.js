@@ -3,6 +3,7 @@ const router = express.Router();
 const Razorpay = require('razorpay');
 const crypto = require('crypto');
 const Order = require('../models/Order');
+const Coupon = require('../models/Coupon');
 const { sendCustomerConfirmation, sendAdminNotification } = require('../services/emailService');
 
 let razorpay;
@@ -57,16 +58,59 @@ router.post('/create-order', async (req, res) => {
     }
 });
 
-// POST /api/payment/verify — Verify Razorpay payment signature
+// POST /api/payment/verify — Verify Razorpay payment signature (or free coupon order)
 router.post('/verify', async (req, res) => {
     try {
-        const { razorpay_order_id, razorpay_payment_id, razorpay_signature, orderId } = req.body;
+        const { razorpay_order_id, razorpay_payment_id, razorpay_signature, orderId, skipSignature } = req.body;
 
-        if (!razorpay_order_id || !razorpay_payment_id || !razorpay_signature || !orderId) {
+        if (!orderId) {
+            return res.status(400).json({ message: 'Missing order ID.' });
+        }
+
+        const order = await Order.findById(orderId);
+        if (!order) {
+            return res.status(404).json({ message: 'Order not found.' });
+        }
+
+        // Handle 100% coupon (free) orders
+        if (skipSignature && order.amount <= 0) {
+            order.paymentId = 'coupon_free';
+            order.status = 'pending_verification';
+            await order.save();
+
+            // Increment coupon usage
+            if (order.couponCode) {
+                await Coupon.findOneAndUpdate(
+                    { code: order.couponCode },
+                    { $inc: { usedCount: 1 } }
+                );
+            }
+
+            // Send emails non-blocking
+            Promise.all([
+                sendCustomerConfirmation(order),
+                sendAdminNotification(order),
+            ]).catch((emailError) => {
+                console.error('Email sending error:', emailError);
+            });
+
+            return res.json({
+                message: 'Order confirmed (coupon applied).',
+                order: {
+                    id: order._id,
+                    projectTitle: order.projectTitle,
+                    status: order.status,
+                    amount: order.amount,
+                    paymentId: order.paymentId,
+                },
+            });
+        }
+
+        // Standard Razorpay verification
+        if (!razorpay_order_id || !razorpay_payment_id || !razorpay_signature) {
             return res.status(400).json({ message: 'Missing payment verification data.' });
         }
 
-        // Verify signature using HMAC SHA256
         const body = razorpay_order_id + '|' + razorpay_payment_id;
         const expectedSignature = crypto
             .createHmac('sha256', process.env.RAZORPAY_KEY_SECRET)
@@ -77,17 +121,19 @@ router.post('/verify', async (req, res) => {
             return res.status(400).json({ message: 'Payment verification failed. Invalid signature.' });
         }
 
-        // Update order with payment details
-        const order = await Order.findById(orderId);
-        if (!order) {
-            return res.status(404).json({ message: 'Order not found.' });
-        }
-
         order.paymentId = razorpay_payment_id;
-        order.status = 'paid';
+        order.status = 'pending_verification';
         await order.save();
 
-        // Send emails truly non-blocking — don't await so we respond to the client immediately
+        // Increment coupon usage if one was used
+        if (order.couponCode) {
+            await Coupon.findOneAndUpdate(
+                { code: order.couponCode },
+                { $inc: { usedCount: 1 } }
+            );
+        }
+
+        // Send emails non-blocking
         Promise.all([
             sendCustomerConfirmation(order),
             sendAdminNotification(order),

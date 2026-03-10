@@ -1,8 +1,8 @@
 const express = require('express');
 const router = express.Router();
-const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 const Order = require('../models/Order');
+const Coupon = require('../models/Coupon');
 const adminAuth = require('../middleware/auth');
 const { sendStatusUpdate } = require('../services/emailService');
 
@@ -27,49 +27,16 @@ router.post('/login', async (req, res) => {
     }
 });
 
-// GET /api/admin/test-email — Test Nodemailer SMTP connection
-router.get('/test-email', async (req, res) => {
-    try {
-        const nodemailer = require('nodemailer');
-        const transporter = nodemailer.createTransport({
-            service: 'gmail',
-            auth: {
-                user: process.env.EMAIL_USER,
-                pass: process.env.EMAIL_PASS,
-            },
-        });
+// ─── ORDER MANAGEMENT ───────────────────────────────────
 
-        await transporter.verify();
-        
-        const info = await transporter.sendMail({
-            from: process.env.EMAIL_USER,
-            to: process.env.ADMIN_EMAIL || process.env.EMAIL_USER,
-            subject: 'ProjectBuildr Render SMTP Test',
-            text: 'If you are reading this, Nodemailer is successfully authenticated on Render.',
-        });
-
-        res.json({ success: true, message: 'SMTP connected and test email sent!', info });
-    } catch (error) {
-        console.error('SMTP Error:', error);
-        res.status(500).json({ 
-            success: false, 
-            message: 'SMTP connection failed', 
-            error: error.message,
-            stack: error.stack,
-            envVars: {
-                hasUser: !!process.env.EMAIL_USER,
-                hasPass: !!process.env.EMAIL_PASS
-            }
-        });
-    }
-});
+const validStatuses = ['pending_verification', 'collaborator_verified', 'in_progress', 'review_testing', 'completed', 'refunded'];
 
 // GET /api/admin/orders — Get all orders (supports ?status= filter)
 router.get('/orders', adminAuth, async (req, res) => {
     try {
         const { status } = req.query;
         const filter = {};
-        if (status && ['paid', 'in_progress', 'completed', 'refunded'].includes(status)) {
+        if (status && validStatuses.includes(status)) {
             filter.status = status;
         }
 
@@ -95,11 +62,10 @@ router.get('/orders/:id', adminAuth, async (req, res) => {
     }
 });
 
-// PATCH /api/admin/orders/:id/status — Update order status
+// PATCH /api/admin/orders/:id/status — Update order status + message
 router.patch('/orders/:id/status', adminAuth, async (req, res) => {
     try {
-        const { status } = req.body;
-        const validStatuses = ['paid', 'in_progress', 'completed', 'refunded'];
+        const { status, statusMessage } = req.body;
 
         if (!status || !validStatuses.includes(status)) {
             return res.status(400).json({ message: 'Invalid status.' });
@@ -111,6 +77,10 @@ router.patch('/orders/:id/status', adminAuth, async (req, res) => {
         }
 
         order.status = status;
+        if (statusMessage !== undefined) {
+            order.statusMessage = statusMessage;
+        }
+        order.statusUpdatedAt = new Date();
         await order.save();
 
         // Send status update email to customer (non-blocking)
@@ -122,6 +92,74 @@ router.patch('/orders/:id/status', adminAuth, async (req, res) => {
     } catch (error) {
         console.error('Update status error:', error);
         res.status(500).json({ message: 'Failed to update order status.' });
+    }
+});
+
+// ─── COUPON MANAGEMENT ──────────────────────────────────
+
+// GET /api/admin/coupons — List all coupons
+router.get('/coupons', adminAuth, async (req, res) => {
+    try {
+        const coupons = await Coupon.find().sort({ createdAt: -1 });
+        res.json(coupons);
+    } catch (error) {
+        console.error('Fetch coupons error:', error);
+        res.status(500).json({ message: 'Failed to fetch coupons.' });
+    }
+});
+
+// POST /api/admin/coupons — Create a coupon
+router.post('/coupons', adminAuth, async (req, res) => {
+    try {
+        const { code, discountType, discountValue, maxUses, expiresAt, isActive } = req.body;
+
+        if (!code || !discountType || discountValue === undefined) {
+            return res.status(400).json({ message: 'Code, discount type, and discount value are required.' });
+        }
+
+        const existing = await Coupon.findOne({ code: code.toUpperCase() });
+        if (existing) {
+            return res.status(400).json({ message: 'A coupon with this code already exists.' });
+        }
+
+        const coupon = new Coupon({
+            code: code.toUpperCase(),
+            discountType,
+            discountValue,
+            maxUses: maxUses || null,
+            expiresAt: expiresAt || null,
+            isActive: isActive !== false,
+        });
+
+        await coupon.save();
+        res.status(201).json(coupon);
+    } catch (error) {
+        console.error('Create coupon error:', error);
+        res.status(500).json({ message: 'Failed to create coupon.' });
+    }
+});
+
+// PATCH /api/admin/coupons/:id — Update/deactivate a coupon
+router.patch('/coupons/:id', adminAuth, async (req, res) => {
+    try {
+        const updates = {};
+        const { isActive, discountType, discountValue, maxUses, expiresAt } = req.body;
+
+        if (isActive !== undefined) updates.isActive = isActive;
+        if (discountType) updates.discountType = discountType;
+        if (discountValue !== undefined) updates.discountValue = discountValue;
+        if (maxUses !== undefined) updates.maxUses = maxUses;
+        if (expiresAt !== undefined) updates.expiresAt = expiresAt;
+
+        const coupon = await Coupon.findByIdAndUpdate(req.params.id, updates, { new: true });
+        if (!coupon) {
+            return res.status(404).json({ message: 'Coupon not found.' });
+        }
+
+        res.json(coupon);
+    } catch (error) {
+        console.error('Update coupon error:', error);
+        res.status(500).json({ message: 'Failed to update coupon.' });
     }
 });
 
