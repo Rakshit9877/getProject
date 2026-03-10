@@ -17,15 +17,12 @@ router.post('/validate', async (req, res) => {
         if (!coupon) {
             return res.status(200).json({ valid: false, message: 'Invalid or expired coupon code.' });
         }
-
         if (!coupon.isActive) {
             return res.status(200).json({ valid: false, message: 'This coupon is no longer active.' });
         }
-
         if (coupon.expiresAt && new Date() > coupon.expiresAt) {
             return res.status(200).json({ valid: false, message: 'This coupon has expired.' });
         }
-
         if (coupon.maxUses !== null && coupon.usedCount >= coupon.maxUses) {
             return res.status(200).json({ valid: false, message: 'This coupon has reached its usage limit.' });
         }
@@ -35,24 +32,34 @@ router.post('/validate', async (req, res) => {
             return res.status(400).json({ valid: false, message: 'Invalid complexity level.' });
         }
 
+        let discountedPrice;
         let discountAmount;
-        if (coupon.discountType === 'percentage') {
+
+        if (coupon.setsFixedPrice) {
+            // Fixed price coupon (e.g., NEW_USER → ₹1)
+            discountedPrice = coupon.fixedPrice;
+            discountAmount = originalPrice - discountedPrice;
+        } else if (coupon.discountType === 'percentage') {
             discountAmount = Math.round((originalPrice * coupon.discountValue) / 100);
+            discountAmount = Math.min(discountAmount, originalPrice);
+            discountedPrice = originalPrice - discountAmount;
         } else {
-            discountAmount = coupon.discountValue;
+            discountAmount = Math.min(coupon.discountValue, originalPrice);
+            discountedPrice = originalPrice - discountAmount;
         }
 
-        // Cap discount to the original price
-        discountAmount = Math.min(discountAmount, originalPrice);
-        const discountedPrice = originalPrice - discountAmount;
+        // Ensure minimum ₹1 (Razorpay minimum)
+        discountedPrice = Math.max(discountedPrice, 0);
 
         res.json({
             valid: true,
-            discountType: coupon.discountType,
+            discountType: coupon.setsFixedPrice ? 'fixed_price' : coupon.discountType,
             discountValue: coupon.discountValue,
             discountAmount,
             discountedPrice,
             originalPrice,
+            setsFixedPrice: coupon.setsFixedPrice || false,
+            fixedPrice: coupon.fixedPrice,
         });
     } catch (error) {
         console.error('Coupon validation error:', error);

@@ -1,220 +1,244 @@
-const techOptions = [
-  'React Frontend',
-  'Express/Node.js Backend',
-  'MongoDB Database',
-  'REST API',
-  'Authentication (Login/Register)',
-  'File Upload',
-  'Admin Panel',
-  'Other',
-]
-
-const complexityOptions = [
-  { value: 'Basic', label: 'Basic', desc: 'Simple CRUD app, 2–3 pages' },
-  { value: 'Standard', label: 'Standard', desc: 'Multiple features, user auth, 4–6 pages' },
-  { value: 'Advanced', label: 'Advanced', desc: 'Complex logic, admin panel, integrations' },
-]
-
 export default function StepTwo({ formData, updateField, errors }) {
-  const toggleTech = (tech) => {
-    const current = formData.techStack
-    if (current.includes(tech)) {
-      updateField('techStack', current.filter(t => t !== tech))
-    } else {
-      updateField('techStack', [...current, tech])
+    const featureGroups = [
+        {
+            title: 'Pages & Structure',
+            icon: '🏗️',
+            features: [
+                'Simple single-page app (1–2 pages)',
+                'Multi-page website (3–6 pages)',
+                'Admin panel / dashboard',
+            ],
+        },
+        {
+            title: 'User Features',
+            icon: '👤',
+            features: [
+                'User registration & login',
+                'User profile page',
+                'Role-based access (admin vs regular user)',
+            ],
+        },
+        {
+            title: 'Data & Storage',
+            icon: '💾',
+            features: [
+                'Store and display data (database needed)',
+                'File / image uploads',
+                'Search and filter functionality',
+            ],
+        },
+        {
+            title: 'External & Advanced',
+            icon: '⚡',
+            features: [
+                'Payment integration',
+                'Email notifications',
+                'Charts and data visualization',
+                'REST API / connect to external service',
+            ],
+        },
+    ]
+
+    const selected = formData.selectedFeatures || []
+
+    const toggleFeature = (feature) => {
+        const updated = selected.includes(feature)
+            ? selected.filter(f => f !== feature)
+            : [...selected, feature]
+        updateField('selectedFeatures', updated)
     }
-  }
 
-  return (
-    <div>
-      <h2 className="text-xl font-semibold mb-1">Project Details</h2>
-      <p className="text-navy-400 text-sm mb-6">Tell us about the project you need built</p>
+    // Auto-derive feature count from selections
+    const deriveFeatureCount = () => {
+        const count = selected.length
+        if (count <= 3) return '1-3'
+        if (count <= 6) return '4-6'
+        return '7+'
+    }
 
-      <div className="space-y-5">
-        {/* Project Title */}
+    // Update featureCount when selections change
+    if (selected.length > 0) {
+        const derived = deriveFeatureCount()
+        if (formData.featureCount !== derived) {
+            setTimeout(() => updateField('featureCount', derived), 0)
+        }
+    }
+
+    return (
         <div>
-          <label htmlFor="projectTitle" className="input-label">Project Title *</label>
-          <input
-            id="projectTitle"
-            type="text"
-            className="input-field"
-            placeholder="e.g., Student Attendance Management System"
-            value={formData.projectTitle}
-            onChange={(e) => updateField('projectTitle', e.target.value)}
-          />
-          {errors.projectTitle && <p className="input-error">{errors.projectTitle}</p>}
-        </div>
+            <h2 className="text-xl font-semibold mb-1">Project Details</h2>
+            <p className="text-navy-400 text-sm mb-6">Tell us about your project and what it needs</p>
 
-        {/* Project Description */}
-        <div>
-          <label htmlFor="projectDescription" className="input-label">Project Description *</label>
-          <textarea
-            id="projectDescription"
-            className="input-field min-h-[100px] resize-y"
-            placeholder="Describe your project requirements in detail..."
-            maxLength={500}
-            value={formData.projectDescription}
-            onChange={(e) => updateField('projectDescription', e.target.value)}
-          />
-          <div className="flex items-center justify-between mt-1">
-            {errors.projectDescription ? (
-              <p className="input-error">{errors.projectDescription}</p>
-            ) : <span />}
-            <span className={`text-xs ${formData.projectDescription.length > 450 ? 'text-amber-400' : 'text-navy-500'}`}>
-              {formData.projectDescription.length}/500
-            </span>
-          </div>
-        </div>
-
-        {/* Tech Stack */}
-        <div>
-          <label className="input-label">Tech Stack Preference</label>
-          <div className="grid grid-cols-2 gap-2">
-            {techOptions.map((tech) => (
-              <label
-                key={tech}
-                className={`flex items-center gap-2 p-3 rounded-xl border cursor-pointer transition-all duration-200 text-sm ${
-                  formData.techStack.includes(tech)
-                    ? 'border-navy-500/50 bg-navy-500/10 text-white'
-                    : 'border-white/10 bg-navy-900/30 text-navy-400 hover:border-white/20'
-                }`}
-              >
-                <input
-                  type="checkbox"
-                  checked={formData.techStack.includes(tech)}
-                  onChange={() => toggleTech(tech)}
-                  className="sr-only"
-                />
-                <div className={`w-4 h-4 rounded border flex items-center justify-center flex-shrink-0 ${
-                  formData.techStack.includes(tech) ? 'bg-navy-500 border-navy-500' : 'border-navy-500/30'
-                }`}>
-                  {formData.techStack.includes(tech) && (
-                    <svg className="w-3 h-3 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M5 13l4 4L19 7" /></svg>
-                  )}
-                </div>
-                {tech}
-              </label>
-            ))}
-          </div>
-          {formData.techStack.includes('Other') && (
-            <input
-              type="text"
-              className="input-field mt-3"
-              placeholder="Specify other technologies..."
-              value={formData.otherTechStack}
-              onChange={(e) => updateField('otherTechStack', e.target.value)}
-            />
-          )}
-        </div>
-
-        {/* Complexity Level */}
-        <div>
-          <label className="input-label">Complexity Level *</label>
-          <div className="space-y-2">
-            {complexityOptions.map((opt) => (
-              <label
-                key={opt.value}
-                className={`flex items-start gap-3 p-4 rounded-xl border cursor-pointer transition-all duration-200 ${
-                  formData.complexityLevel === opt.value
-                    ? 'border-navy-500/50 bg-navy-500/10'
-                    : 'border-white/10 bg-navy-900/30 hover:border-white/20'
-                }`}
-              >
-                <input
-                  type="radio"
-                  name="complexity"
-                  value={opt.value}
-                  checked={formData.complexityLevel === opt.value}
-                  onChange={(e) => updateField('complexityLevel', e.target.value)}
-                  className="sr-only"
-                />
-                <div className={`w-4 h-4 rounded-full border-2 flex items-center justify-center flex-shrink-0 mt-0.5 ${
-                  formData.complexityLevel === opt.value ? 'border-navy-500' : 'border-navy-500/30'
-                }`}>
-                  {formData.complexityLevel === opt.value && (
-                    <div className="w-2 h-2 rounded-full bg-navy-500" />
-                  )}
-                </div>
+            <div className="space-y-5">
+                {/* Project Title */}
                 <div>
-                  <div className="font-medium text-white">{opt.label}</div>
-                  <div className="text-sm text-navy-400">{opt.desc}</div>
+                    <label className="text-sm text-navy-300 block mb-1.5">
+                        Project Title <span className="text-red-400">*</span>
+                    </label>
+                    <input
+                        type="text"
+                        placeholder="e.g. Student Attendance System"
+                        value={formData.projectTitle}
+                        onChange={(e) => updateField('projectTitle', e.target.value)}
+                        className="input-field"
+                    />
+                    {errors.projectTitle && <p className="text-red-400 text-xs mt-1">{errors.projectTitle}</p>}
                 </div>
-              </label>
-            ))}
-          </div>
-          {errors.complexityLevel && <p className="input-error">{errors.complexityLevel}</p>}
-        </div>
 
-        {/* Feature Count */}
-        <div>
-          <label htmlFor="featureCount" className="input-label">Number of Key Features Needed *</label>
-          <select
-            id="featureCount"
-            className="input-field"
-            value={formData.featureCount}
-            onChange={(e) => updateField('featureCount', e.target.value)}
-          >
-            <option value="">Select range</option>
-            <option value="1-3">1–3 features</option>
-            <option value="4-6">4–6 features</option>
-            <option value="7-10">7–10 features</option>
-          </select>
-          {errors.featureCount && <p className="input-error">{errors.featureCount}</p>}
-        </div>
+                {/* Project Description */}
+                <div>
+                    <label className="text-sm text-navy-300 block mb-1.5">
+                        Project Description <span className="text-red-400">*</span>
+                    </label>
+                    <textarea
+                        placeholder="Describe what your project should do, key features, and any specific requirements..."
+                        value={formData.projectDescription}
+                        onChange={(e) => updateField('projectDescription', e.target.value)}
+                        rows={4}
+                        maxLength={500}
+                        className="input-field resize-none"
+                    />
+                    <div className="flex items-center justify-between mt-1">
+                        {errors.projectDescription && <p className="text-red-400 text-xs">{errors.projectDescription}</p>}
+                        <span className="text-navy-500 text-xs ml-auto">{formData.projectDescription?.length || 0}/500</span>
+                    </div>
+                </div>
 
-        {/* Feature List */}
-        <div>
-          <label htmlFor="featureList" className="input-label">Brief Feature List</label>
-          <textarea
-            id="featureList"
-            className="input-field min-h-[80px] resize-y"
-            placeholder="List your main features, one per line&#10;e.g.,&#10;User registration and login&#10;Dashboard with charts&#10;Export data to PDF"
-            maxLength={300}
-            value={formData.featureList}
-            onChange={(e) => updateField('featureList', e.target.value)}
-          />
-          <div className="flex items-center justify-between mt-1">
-            {errors.featureList ? (
-              <p className="input-error">{errors.featureList}</p>
-            ) : <span />}
-            <span className={`text-xs ${formData.featureList.length > 260 ? 'text-amber-400' : 'text-navy-500'}`}>
-              {formData.featureList.length}/300
-            </span>
-          </div>
-        </div>
+                {/* Feature Cards */}
+                <div>
+                    <label className="text-sm text-navy-300 block mb-3">
+                        What does your project need? <span className="text-navy-500">(Select all that apply)</span>
+                    </label>
+                    <div className="space-y-5">
+                        {featureGroups.map(group => (
+                            <div key={group.title}>
+                                <p className="text-xs font-semibold text-navy-500 uppercase tracking-wider mb-2 flex items-center gap-1.5">
+                                    <span>{group.icon}</span> {group.title}
+                                </p>
+                                <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                                    {group.features.map(feature => {
+                                        const isSelected = selected.includes(feature)
+                                        return (
+                                            <button
+                                                key={feature}
+                                                type="button"
+                                                onClick={() => toggleFeature(feature)}
+                                                className={`text-left px-4 py-3 rounded-xl border text-sm transition-all duration-200 ${
+                                                    isSelected
+                                                        ? 'bg-navy-500/15 border-navy-500/50 text-white'
+                                                        : 'bg-navy-900/30 border-white/10 text-navy-400 hover:border-white/20 hover:text-navy-300'
+                                                }`}
+                                            >
+                                                <span className="flex items-center gap-2">
+                                                    <span className={`w-5 h-5 rounded-md border flex items-center justify-center flex-shrink-0 ${
+                                                        isSelected ? 'bg-navy-500 border-navy-500' : 'border-navy-600'
+                                                    }`}>
+                                                        {isSelected && (
+                                                            <svg className="w-3 h-3 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M5 13l4 4L19 7" />
+                                                            </svg>
+                                                        )}
+                                                    </span>
+                                                    {feature}
+                                                </span>
+                                            </button>
+                                        )
+                                    })}
+                                </div>
+                            </div>
+                        ))}
+                    </div>
+                </div>
 
-        {/* Deadline */}
-        <div>
-          <label htmlFor="deadlinePreference" className="input-label">Deadline Preference *</label>
-          <select
-            id="deadlinePreference"
-            className="input-field"
-            value={formData.deadlinePreference}
-            onChange={(e) => updateField('deadlinePreference', e.target.value)}
-          >
-            <option value="">Select deadline</option>
-            <option value="3 days">3 days</option>
-            <option value="5 days">5 days</option>
-            <option value="7 days">7 days</option>
-            <option value="10 days">10 days</option>
-            <option value="Flexible">Flexible</option>
-          </select>
-          {errors.deadlinePreference && <p className="input-error">{errors.deadlinePreference}</p>}
-        </div>
+                {/* Additional Notes */}
+                <div>
+                    <label className="text-sm text-navy-300 block mb-1.5">
+                        Anything else your project needs? <span className="text-navy-500">(optional)</span>
+                    </label>
+                    <textarea
+                        placeholder="Any specific libraries, design references, or special requirements..."
+                        value={formData.featureList}
+                        onChange={(e) => updateField('featureList', e.target.value)}
+                        rows={3}
+                        maxLength={300}
+                        className="input-field resize-none"
+                    />
+                    <span className="text-navy-500 text-xs mt-1 block text-right">{formData.featureList?.length || 0}/300</span>
+                </div>
 
-        {/* Reference Websites */}
-        <div>
-          <label htmlFor="referenceWebsites" className="input-label">Any Reference Websites? <span className="text-navy-500">(optional)</span></label>
-          <input
-            id="referenceWebsites"
-            type="text"
-            className="input-field"
-            placeholder="e.g., https://example.com"
-            value={formData.referenceWebsites}
-            onChange={(e) => updateField('referenceWebsites', e.target.value)}
-          />
+                {/* Complexity Level */}
+                <div>
+                    <label className="text-sm text-navy-300 block mb-2">
+                        Complexity Level <span className="text-red-400">*</span>
+                    </label>
+                    <div className="grid grid-cols-3 gap-3">
+                        {[
+                            { level: 'Basic', desc: '2–3 pages, simple CRUD', price: '₹499' },
+                            { level: 'Standard', desc: '4–6 pages, auth + API', price: '₹999' },
+                            { level: 'Advanced', desc: '6+ pages, complex logic', price: '₹1,799' },
+                        ].map(({ level, desc, price }) => (
+                            <button
+                                key={level}
+                                type="button"
+                                onClick={() => updateField('complexityLevel', level)}
+                                className={`p-3 rounded-xl border text-center transition-all ${
+                                    formData.complexityLevel === level
+                                        ? 'bg-navy-500/15 border-navy-500/50 text-white'
+                                        : 'bg-navy-900/30 border-white/10 text-navy-400 hover:border-white/20'
+                                }`}
+                            >
+                                <div className="font-semibold text-sm">{level}</div>
+                                <div className="text-xs mt-0.5 text-navy-500">{desc}</div>
+                                <div className="text-xs mt-1 font-medium text-navy-300">{price}</div>
+                            </button>
+                        ))}
+                    </div>
+                    {errors.complexityLevel && <p className="text-red-400 text-xs mt-1">{errors.complexityLevel}</p>}
+                </div>
+
+                {/* Deadline Preference */}
+                <div>
+                    <label className="text-sm text-navy-300 block mb-2">
+                        Deadline Preference <span className="text-red-400">*</span>
+                    </label>
+                    <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                        {[
+                            { value: 'Relaxed (7-10 days)', label: 'Relaxed', sub: '7–10 days' },
+                            { value: 'Standard (4-7 days)', label: 'Standard', sub: '4–7 days' },
+                            { value: 'Urgent (2-3 days)', label: 'Urgent', sub: '2–3 days' },
+                        ].map(({ value, label, sub }) => (
+                            <button
+                                key={value}
+                                type="button"
+                                onClick={() => updateField('deadlinePreference', value)}
+                                className={`p-3 rounded-xl border text-center transition-all ${
+                                    formData.deadlinePreference === value
+                                        ? 'bg-navy-500/15 border-navy-500/50 text-white'
+                                        : 'bg-navy-900/30 border-white/10 text-navy-400 hover:border-white/20'
+                                }`}
+                            >
+                                <div className="font-semibold text-sm">{label}</div>
+                                <div className="text-xs text-navy-500">{sub}</div>
+                            </button>
+                        ))}
+                    </div>
+                    {errors.deadlinePreference && <p className="text-red-400 text-xs mt-1">{errors.deadlinePreference}</p>}
+                </div>
+
+                {/* Reference Websites */}
+                <div>
+                    <label className="text-sm text-navy-300 block mb-1.5">
+                        Reference Websites <span className="text-navy-500">(optional)</span>
+                    </label>
+                    <input
+                        type="text"
+                        placeholder="e.g. https://example.com, https://inspiration.com"
+                        value={formData.referenceWebsites}
+                        onChange={(e) => updateField('referenceWebsites', e.target.value)}
+                        className="input-field"
+                    />
+                </div>
+            </div>
         </div>
-      </div>
-    </div>
-  )
+    )
 }

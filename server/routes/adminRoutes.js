@@ -4,20 +4,14 @@ const jwt = require('jsonwebtoken');
 const Order = require('../models/Order');
 const Coupon = require('../models/Coupon');
 const adminAuth = require('../middleware/auth');
-const { sendStatusUpdate } = require('../services/emailService');
+const { sendStatusUpdateEmail } = require('../utils/emailService');
 
-// POST /api/admin/login — Admin login
+// POST /api/admin/login
 router.post('/login', async (req, res) => {
     try {
         const { password } = req.body;
-
-        if (!password) {
-            return res.status(400).json({ message: 'Password is required.' });
-        }
-
-        if (password !== process.env.ADMIN_PASSWORD) {
-            return res.status(401).json({ message: 'Invalid password.' });
-        }
+        if (!password) return res.status(400).json({ message: 'Password is required.' });
+        if (password !== process.env.ADMIN_PASSWORD) return res.status(401).json({ message: 'Invalid password.' });
 
         const token = jwt.sign({ role: 'admin' }, process.env.JWT_SECRET, { expiresIn: '24h' });
         res.json({ token });
@@ -31,14 +25,12 @@ router.post('/login', async (req, res) => {
 
 const validStatuses = ['pending_verification', 'collaborator_verified', 'in_progress', 'review_testing', 'completed', 'refunded'];
 
-// GET /api/admin/orders — Get all orders (supports ?status= filter)
+// GET /api/admin/orders
 router.get('/orders', adminAuth, async (req, res) => {
     try {
         const { status } = req.query;
         const filter = {};
-        if (status && validStatuses.includes(status)) {
-            filter.status = status;
-        }
+        if (status && validStatuses.includes(status)) filter.status = status;
 
         const orders = await Order.find(filter).sort({ createdAt: -1 });
         res.json(orders);
@@ -48,13 +40,11 @@ router.get('/orders', adminAuth, async (req, res) => {
     }
 });
 
-// GET /api/admin/orders/:id — Get single order
+// GET /api/admin/orders/:id
 router.get('/orders/:id', adminAuth, async (req, res) => {
     try {
         const order = await Order.findById(req.params.id);
-        if (!order) {
-            return res.status(404).json({ message: 'Order not found.' });
-        }
+        if (!order) return res.status(404).json({ message: 'Order not found.' });
         res.json(order);
     } catch (error) {
         console.error('Fetch order error:', error);
@@ -62,31 +52,24 @@ router.get('/orders/:id', adminAuth, async (req, res) => {
     }
 });
 
-// PATCH /api/admin/orders/:id/status — Update order status + message
+// PATCH /api/admin/orders/:id/status
 router.patch('/orders/:id/status', adminAuth, async (req, res) => {
     try {
         const { status, statusMessage } = req.body;
-
         if (!status || !validStatuses.includes(status)) {
             return res.status(400).json({ message: 'Invalid status.' });
         }
 
         const order = await Order.findById(req.params.id);
-        if (!order) {
-            return res.status(404).json({ message: 'Order not found.' });
-        }
+        if (!order) return res.status(404).json({ message: 'Order not found.' });
 
         order.status = status;
-        if (statusMessage !== undefined) {
-            order.statusMessage = statusMessage;
-        }
+        if (statusMessage !== undefined) order.statusMessage = statusMessage;
         order.statusUpdatedAt = new Date();
         await order.save();
 
-        // Send status update email to customer (non-blocking)
-        sendStatusUpdate(order).catch((emailError) => {
-            console.error('Status update email error:', emailError);
-        });
+        // Send status update email (non-blocking)
+        sendStatusUpdateEmail(order);
 
         res.json({ message: 'Order status updated.', order });
     } catch (error) {
@@ -97,7 +80,7 @@ router.patch('/orders/:id/status', adminAuth, async (req, res) => {
 
 // ─── COUPON MANAGEMENT ──────────────────────────────────
 
-// GET /api/admin/coupons — List all coupons
+// GET /api/admin/coupons
 router.get('/coupons', adminAuth, async (req, res) => {
     try {
         const coupons = await Coupon.find().sort({ createdAt: -1 });
@@ -108,24 +91,22 @@ router.get('/coupons', adminAuth, async (req, res) => {
     }
 });
 
-// POST /api/admin/coupons — Create a coupon
+// POST /api/admin/coupons
 router.post('/coupons', adminAuth, async (req, res) => {
     try {
-        const { code, discountType, discountValue, maxUses, expiresAt, isActive } = req.body;
+        const { code, discountType, discountValue, setsFixedPrice, fixedPrice, maxUses, expiresAt, isActive } = req.body;
 
-        if (!code || !discountType || discountValue === undefined) {
-            return res.status(400).json({ message: 'Code, discount type, and discount value are required.' });
-        }
+        if (!code) return res.status(400).json({ message: 'Coupon code is required.' });
 
         const existing = await Coupon.findOne({ code: code.toUpperCase() });
-        if (existing) {
-            return res.status(400).json({ message: 'A coupon with this code already exists.' });
-        }
+        if (existing) return res.status(400).json({ message: 'A coupon with this code already exists.' });
 
         const coupon = new Coupon({
             code: code.toUpperCase(),
-            discountType,
-            discountValue,
+            discountType: setsFixedPrice ? 'flat' : (discountType || 'percentage'),
+            discountValue: discountValue || 0,
+            setsFixedPrice: setsFixedPrice || false,
+            fixedPrice: fixedPrice || null,
             maxUses: maxUses || null,
             expiresAt: expiresAt || null,
             isActive: isActive !== false,
@@ -139,22 +120,22 @@ router.post('/coupons', adminAuth, async (req, res) => {
     }
 });
 
-// PATCH /api/admin/coupons/:id — Update/deactivate a coupon
+// PATCH /api/admin/coupons/:id
 router.patch('/coupons/:id', adminAuth, async (req, res) => {
     try {
         const updates = {};
-        const { isActive, discountType, discountValue, maxUses, expiresAt } = req.body;
+        const { isActive, discountType, discountValue, setsFixedPrice, fixedPrice, maxUses, expiresAt } = req.body;
 
         if (isActive !== undefined) updates.isActive = isActive;
         if (discountType) updates.discountType = discountType;
         if (discountValue !== undefined) updates.discountValue = discountValue;
+        if (setsFixedPrice !== undefined) updates.setsFixedPrice = setsFixedPrice;
+        if (fixedPrice !== undefined) updates.fixedPrice = fixedPrice;
         if (maxUses !== undefined) updates.maxUses = maxUses;
         if (expiresAt !== undefined) updates.expiresAt = expiresAt;
 
         const coupon = await Coupon.findByIdAndUpdate(req.params.id, updates, { new: true });
-        if (!coupon) {
-            return res.status(404).json({ message: 'Coupon not found.' });
-        }
+        if (!coupon) return res.status(404).json({ message: 'Coupon not found.' });
 
         res.json(coupon);
     } catch (error) {

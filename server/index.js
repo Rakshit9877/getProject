@@ -1,6 +1,6 @@
 const path = require('path');
 require('dotenv').config({ path: path.resolve(__dirname, '../.env') });
-require('dotenv').config(); // also check server dir for production
+require('dotenv').config();
 const express = require('express');
 const mongoose = require('mongoose');
 const cors = require('cors');
@@ -15,7 +15,7 @@ const app = express();
 
 // Middleware
 app.use(cors({
-    origin: function(origin, callback) {
+    origin: function (origin, callback) {
         return callback(null, origin || true);
     },
     credentials: true,
@@ -28,7 +28,7 @@ app.use('/api/payment', paymentRoutes);
 app.use('/api/admin', adminRoutes);
 app.use('/api/coupons', couponRoutes);
 
-// Public config endpoint (pricing + github username for the frontend)
+// Public config endpoint
 app.get('/api/config', (req, res) => {
     res.json({
         pricing,
@@ -45,7 +45,6 @@ app.get('/api/health', (req, res) => {
 // Connect to MongoDB and start server
 const PORT = process.env.PORT || 5001;
 
-// Validate required env vars
 const requiredEnvVars = ['MONGODB_URI', 'JWT_SECRET', 'RAZORPAY_KEY_ID', 'RAZORPAY_KEY_SECRET'];
 const missingVars = requiredEnvVars.filter(v => !process.env[v]);
 if (missingVars.length > 0) {
@@ -55,19 +54,19 @@ if (missingVars.length > 0) {
 
 console.log(`🔧 Starting server on port ${PORT}...`);
 
-// Seed test coupon
+// Seed default coupons
 async function seedCoupons() {
     const Coupon = require('./models/Coupon');
-    const exists = await Coupon.findOne({ code: 'TEST_COUPON' });
-    if (!exists) {
-        await Coupon.create({
-            code: 'TEST_COUPON',
-            discountType: 'percentage',
-            discountValue: 100,
-            maxUses: null,
-            isActive: true,
-        });
-        console.log('🎟️  Seeded TEST_COUPON (100% discount)');
+    const defaults = [
+        { code: 'TEST_COUPON', discountType: 'percentage', discountValue: 100, setsFixedPrice: false, maxUses: null, isActive: true },
+        { code: 'NEW_USER', discountType: 'flat', discountValue: 0, setsFixedPrice: true, fixedPrice: 1, maxUses: 50, isActive: true },
+    ];
+    for (const c of defaults) {
+        const exists = await Coupon.findOne({ code: c.code });
+        if (!exists) {
+            await Coupon.create(c);
+            console.log(`🎟️  Seeded ${c.code}`);
+        }
     }
 }
 

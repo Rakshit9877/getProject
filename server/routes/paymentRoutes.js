@@ -4,38 +4,40 @@ const Razorpay = require('razorpay');
 const crypto = require('crypto');
 const Order = require('../models/Order');
 const Coupon = require('../models/Coupon');
-const { sendCustomerConfirmation, sendAdminNotification } = require('../services/emailService');
+const { sendCustomerConfirmation, sendAdminNotification } = require('../utils/emailService');
 
 let razorpay;
 function getRazorpay() {
-  if (!razorpay) {
-    razorpay = new Razorpay({
-      key_id: process.env.RAZORPAY_KEY_ID,
-      key_secret: process.env.RAZORPAY_KEY_SECRET,
-    });
-  }
-  return razorpay;
+    if (!razorpay) {
+        razorpay = new Razorpay({
+            key_id: process.env.RAZORPAY_KEY_ID,
+            key_secret: process.env.RAZORPAY_KEY_SECRET,
+        });
+    }
+    return razorpay;
 }
 
 // POST /api/payment/create-order — Create Razorpay order
 router.post('/create-order', async (req, res) => {
     try {
-        const { amount, orderId } = req.body;
+        const { amount, mongoId } = req.body;
 
-        if (!amount || !orderId) {
+        if (amount === undefined || !mongoId) {
             return res.status(400).json({ message: 'Amount and order ID are required.' });
         }
 
-        // Verify the order exists
-        const order = await Order.findById(orderId);
+        const order = await Order.findById(mongoId);
         if (!order) {
             return res.status(404).json({ message: 'Order not found.' });
         }
 
+        // Razorpay minimum is 100 paise (₹1)
+        const amountInPaise = Math.max(amount * 100, 100);
+
         const razorpayOrder = await getRazorpay().orders.create({
-            amount: amount * 100, // Razorpay expects amount in paise
+            amount: amountInPaise,
             currency: 'INR',
-            receipt: orderId,
+            receipt: mongoId,
             notes: {
                 projectTitle: order.projectTitle,
                 customerEmail: order.email,
@@ -58,52 +60,18 @@ router.post('/create-order', async (req, res) => {
     }
 });
 
-// POST /api/payment/verify — Verify Razorpay payment signature (or free coupon order)
+// POST /api/payment/verify — Verify Razorpay payment signature
 router.post('/verify', async (req, res) => {
     try {
-        const { razorpay_order_id, razorpay_payment_id, razorpay_signature, orderId, skipSignature } = req.body;
+        const { razorpay_order_id, razorpay_payment_id, razorpay_signature, mongoId } = req.body;
 
-        if (!orderId) {
+        if (!mongoId) {
             return res.status(400).json({ message: 'Missing order ID.' });
         }
 
-        const order = await Order.findById(orderId);
+        const order = await Order.findById(mongoId);
         if (!order) {
             return res.status(404).json({ message: 'Order not found.' });
-        }
-
-        // Handle 100% coupon (free) orders
-        if (skipSignature && order.amount <= 0) {
-            order.paymentId = 'coupon_free';
-            order.status = 'pending_verification';
-            await order.save();
-
-            // Increment coupon usage
-            if (order.couponCode) {
-                await Coupon.findOneAndUpdate(
-                    { code: order.couponCode },
-                    { $inc: { usedCount: 1 } }
-                );
-            }
-
-            // Send emails non-blocking
-            Promise.all([
-                sendCustomerConfirmation(order),
-                sendAdminNotification(order),
-            ]).catch((emailError) => {
-                console.error('Email sending error:', emailError);
-            });
-
-            return res.json({
-                message: 'Order confirmed (coupon applied).',
-                order: {
-                    id: order._id,
-                    projectTitle: order.projectTitle,
-                    status: order.status,
-                    amount: order.amount,
-                    paymentId: order.paymentId,
-                },
-            });
         }
 
         // Standard Razorpay verification
@@ -127,29 +95,21 @@ router.post('/verify', async (req, res) => {
 
         // Increment coupon usage if one was used
         if (order.couponCode) {
-            await Coupon.findOneAndUpdate(
+            Coupon.findOneAndUpdate(
                 { code: order.couponCode },
                 { $inc: { usedCount: 1 } }
-            );
+            ).catch(err => console.error('Coupon usage increment error:', err));
         }
 
         // Send emails non-blocking
-        Promise.all([
-            sendCustomerConfirmation(order),
-            sendAdminNotification(order),
-        ]).catch((emailError) => {
-            console.error('Email sending error:', emailError);
-        });
+        sendCustomerConfirmation(order);
+        sendAdminNotification(order);
 
         res.json({
-            message: 'Payment verified successfully.',
-            order: {
-                id: order._id,
-                projectTitle: order.projectTitle,
-                status: order.status,
-                amount: order.amount,
-                paymentId: order.paymentId,
-            },
+            success: true,
+            orderId: order.orderId,
+            projectTitle: order.projectTitle,
+            message: 'Payment successful',
         });
     } catch (error) {
         console.error('Payment verification error:', error);
