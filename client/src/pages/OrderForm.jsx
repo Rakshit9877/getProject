@@ -152,17 +152,19 @@ export default function OrderForm() {
                             mongoId,
                         })
 
-                        navigate('/success', {
-                            state: {
-                                orderId: verifyRes.data.orderId,
-                                projectTitle: verifyRes.data.projectTitle,
-                                email: formData.email,
-                            }
-                        })
+                        // Store success data in sessionStorage — navigate() doesn't work
+                        // reliably inside Razorpay's handler (runs in iframe context)
+                        sessionStorage.setItem('orderSuccess', JSON.stringify({
+                            orderId: verifyRes.data.orderId,
+                            projectTitle: verifyRes.data.projectTitle,
+                            email: formData.email,
+                        }))
+                        window.location.href = '/success'
                     } catch (err) {
-                        alert('Payment verification failed. Please contact support.')
+                        console.error('Payment verification error:', err)
+                        alert('Payment verification failed. Please contact support with your payment reference.')
+                        setPaymentLoading(false)
                     }
-                    setPaymentLoading(false)
                 },
                 prefill: {
                     name: formData.name,

@@ -1,10 +1,14 @@
-import { useEffect, useState } from 'react'
-import { useLocation, Link } from 'react-router-dom'
+import { useState } from 'react'
+import { Link } from 'react-router-dom'
 
 export default function SuccessPage() {
-    const location = useLocation()
     const [copied, setCopied] = useState(false)
-    const data = location.state || {}
+
+    // Read from sessionStorage (set by Razorpay handler via window.location redirect)
+    const stored = sessionStorage.getItem('orderSuccess')
+    const data = stored ? JSON.parse(stored) : {}
+    // Clean up after reading
+    if (stored) sessionStorage.removeItem('orderSuccess')
 
     const { orderId, projectTitle, email } = data
 
