@@ -5,10 +5,16 @@ const crypto = require('crypto');
 const Order = require('../models/Order');
 const { sendCustomerConfirmation, sendAdminNotification } = require('../services/emailService');
 
-const razorpay = new Razorpay({
-    key_id: process.env.RAZORPAY_KEY_ID,
-    key_secret: process.env.RAZORPAY_KEY_SECRET,
-});
+let razorpay;
+function getRazorpay() {
+  if (!razorpay) {
+    razorpay = new Razorpay({
+      key_id: process.env.RAZORPAY_KEY_ID,
+      key_secret: process.env.RAZORPAY_KEY_SECRET,
+    });
+  }
+  return razorpay;
+}
 
 // POST /api/payment/create-order — Create Razorpay order
 router.post('/create-order', async (req, res) => {
@@ -25,7 +31,7 @@ router.post('/create-order', async (req, res) => {
             return res.status(404).json({ message: 'Order not found.' });
         }
 
-        const razorpayOrder = await razorpay.orders.create({
+        const razorpayOrder = await getRazorpay().orders.create({
             amount: amount * 100, // Razorpay expects amount in paise
             currency: 'INR',
             receipt: orderId,

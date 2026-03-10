@@ -39,7 +39,17 @@ app.get('/api/health', (req, res) => {
 });
 
 // Connect to MongoDB and start server
-const PORT = process.env.PORT || 5000;
+const PORT = process.env.PORT || 5001;
+
+// Validate required env vars
+const requiredEnvVars = ['MONGODB_URI', 'JWT_SECRET', 'RAZORPAY_KEY_ID', 'RAZORPAY_KEY_SECRET'];
+const missingVars = requiredEnvVars.filter(v => !process.env[v]);
+if (missingVars.length > 0) {
+    console.error(`❌ Missing required environment variables: ${missingVars.join(', ')}`);
+    process.exit(1);
+}
+
+console.log(`🔧 Starting server on port ${PORT}...`);
 
 mongoose
     .connect(process.env.MONGODB_URI)
