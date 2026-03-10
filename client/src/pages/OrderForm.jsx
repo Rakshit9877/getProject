@@ -135,51 +135,62 @@ export default function OrderForm() {
                 return
             }
 
-            // 4. Open Razorpay checkout
-            const options = {
-                key: keyId,
-                amount: Math.max(amount * 100, 100),
-                currency: 'INR',
-                name: 'ProjixLab',
-                description: `${formData.complexityLevel} Project — ${formData.projectTitle}`,
-                order_id: razorpayOrderId,
-                handler: async function (response) {
-                    try {
-                        const verifyRes = await axios.post(`${API}/api/payment/verify`, {
-                            razorpay_order_id: response.razorpay_order_id,
-                            razorpay_payment_id: response.razorpay_payment_id,
-                            razorpay_signature: response.razorpay_signature,
-                            mongoId,
-                        })
+            // 4. Open Razorpay checkout safely outside the current React render cycle
+            setTimeout(() => {
+                const options = {
+                    key: keyId,
+                    amount: Math.max(amount * 100, 100),
+                    currency: 'INR',
+                    name: 'ProjixLab',
+                    description: `${formData.complexityLevel} Project — ${formData.projectTitle}`,
+                    order_id: razorpayOrderId,
+                    handler: function (response) {
+                        // Detach from Razorpay's execution stack so it can safely tear down its UI
+                        setTimeout(async () => {
+                            try {
+                                const verifyRes = await axios.post(`${API}/api/payment/verify`, {
+                                    razorpay_order_id: response.razorpay_order_id,
+                                    razorpay_payment_id: response.razorpay_payment_id,
+                                    razorpay_signature: response.razorpay_signature,
+                                    mongoId,
+                                })
 
-                        // Store success data in sessionStorage — navigate() doesn't work
-                        // reliably inside Razorpay's handler (runs in iframe context)
-                        sessionStorage.setItem('orderSuccess', JSON.stringify({
-                            orderId: verifyRes.data.orderId,
-                            projectTitle: verifyRes.data.projectTitle,
-                            email: formData.email,
-                        }))
-                        window.location.href = '/success'
-                    } catch (err) {
-                        console.error('Payment verification error:', err)
-                        alert('Payment verification failed. Please contact support with your payment reference.')
-                        setPaymentLoading(false)
-                    }
-                },
-                prefill: {
-                    name: formData.name,
-                    email: formData.email,
-                },
-                theme: { color: '#6366f1' },
-                modal: {
-                    ondismiss: function () {
-                        setPaymentLoading(false)
+                                // Store success data in sessionStorage
+                                sessionStorage.setItem('orderSuccess', JSON.stringify({
+                                    orderId: verifyRes.data.orderId,
+                                    projectTitle: verifyRes.data.projectTitle,
+                                    email: formData.email,
+                                }))
+                                window.location.href = '/success'
+                            } catch (err) {
+                                console.error('Payment verification error:', err)
+                                alert('Payment verification failed. Please contact support with your payment reference.')
+                                setPaymentLoading(false)
+                            }
+                        }, 100)
+                    },
+                    prefill: {
+                        name: formData.name,
+                        email: formData.email,
+                    },
+                    theme: { color: '#6366f1' },
+                    modal: {
+                        ondismiss: function () {
+                            setPaymentLoading(false)
+                        }
                     }
                 }
-            }
 
-            const rzp = new window.Razorpay(options)
-            rzp.open()
+                const rzp = new window.Razorpay(options)
+                
+                rzp.on('payment.failed', function (response){
+                    console.error("Razorpay Payment Failed:", response.error)
+                    alert(`Payment Failed: ${response.error.description || 'Unknown error'}`)
+                    setPaymentLoading(false)
+                })
+
+                rzp.open()
+            }, 50)
         } catch (err) {
             console.error('Payment error:', err)
             alert(err.response?.data?.message || 'Something went wrong. Please try again.')
