@@ -1,12 +1,18 @@
 const nodemailer = require('nodemailer');
 
-const transporter = nodemailer.createTransport({
-    service: 'gmail',
-    auth: {
-        user: process.env.EMAIL_USER,
-        pass: process.env.EMAIL_PASS,
-    },
-});
+let transporter;
+function getTransporter() {
+    if (!transporter) {
+        transporter = nodemailer.createTransport({
+            service: 'gmail',
+            auth: {
+                user: process.env.EMAIL_USER,
+                pass: process.env.EMAIL_PASS,
+            },
+        });
+    }
+    return transporter;
+}
 
 async function sendCustomerConfirmation(order) {
     const mailOptions = {
@@ -43,7 +49,7 @@ async function sendCustomerConfirmation(order) {
     `,
     };
 
-    await transporter.sendMail(mailOptions);
+    await getTransporter().sendMail(mailOptions);
 }
 
 async function sendAdminNotification(order) {
@@ -75,7 +81,7 @@ async function sendAdminNotification(order) {
     `,
     };
 
-    await transporter.sendMail(mailOptions);
+    await getTransporter().sendMail(mailOptions);
 }
 
 async function sendStatusUpdate(order) {
@@ -123,7 +129,7 @@ async function sendStatusUpdate(order) {
     `,
     };
 
-    await transporter.sendMail(mailOptions);
+    await getTransporter().sendMail(mailOptions);
 }
 
 module.exports = { sendCustomerConfirmation, sendAdminNotification, sendStatusUpdate };
