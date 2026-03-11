@@ -4,7 +4,19 @@ const jwt = require('jsonwebtoken');
 const Order = require('../models/Order');
 const Coupon = require('../models/Coupon');
 const adminAuth = require('../middleware/auth');
-const { sendStatusUpdateEmail } = require('../utils/emailService');
+const { sendStatusUpdateEmail, sendRefundNotification } = require('../utils/emailService');
+const Razorpay = require('razorpay');
+
+let razorpay;
+function getRazorpay() {
+    if (!razorpay) {
+        razorpay = new Razorpay({
+            key_id: process.env.RAZORPAY_KEY_ID,
+            key_secret: process.env.RAZORPAY_KEY_SECRET,
+        });
+    }
+    return razorpay;
+}
 
 // POST /api/admin/login
 router.post('/login', async (req, res) => {
@@ -75,6 +87,51 @@ router.patch('/orders/:id/status', adminAuth, async (req, res) => {
     } catch (error) {
         console.error('Update status error:', error);
         res.status(500).json({ message: 'Failed to update order status.' });
+    }
+});
+
+// POST /api/admin/orders/:id/refund
+router.post('/orders/:id/refund', adminAuth, async (req, res) => {
+    try {
+        const { refundAmount, refundReason } = req.body;
+        if (!refundAmount || refundAmount <= 0) return res.status(400).json({ message: 'Invalid refund amount.' });
+
+        const order = await Order.findById(req.params.id);
+        if (!order) return res.status(404).json({ message: 'Order not found.' });
+
+        if (order.paymentStatus === 'refunded') {
+            return res.status(400).json({ message: 'Order is already refunded.' });
+        }
+        if (!order.paymentId) {
+            return res.status(400).json({ message: 'Cannot refund: no Razorpay payment ID on record.' });
+        }
+
+        // Process refund via Razorpay API (amount in paise)
+        const refundResponse = await getRazorpay().payments.refund(order.paymentId, {
+            amount: refundAmount * 100,
+            notes: {
+                reason: refundReason || 'Customer requested'
+            }
+        });
+
+        // Update DB
+        order.status = 'refunded';
+        order.paymentStatus = 'refunded';
+        order.refundId = refundResponse.id;
+        order.refundAmount = refundResponse.amount / 100;
+        order.refundReason = refundReason || 'Customer requested';
+        order.refundInitiatedAt = new Date();
+        order.refundCompletedAt = new Date();
+        
+        await order.save();
+
+        // Send email notification non-blocking
+        sendRefundNotification(order);
+
+        res.json({ message: 'Refund processed successfully', order });
+    } catch (error) {
+        console.error('Refund processing error:', error);
+        res.status(500).json({ message: error.error?.description || 'Failed to process refund.' });
     }
 });
 

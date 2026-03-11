@@ -34,6 +34,8 @@ export default function AdminDashboard() {
     const [updating, setUpdating] = useState(false)
     const [statusForm, setStatusForm] = useState({ status: '', message: '' })
     const [statusSuccess, setStatusSuccess] = useState(false)
+    const [refundForm, setRefundForm] = useState({ amount: '', reason: '' })
+    const [refunding, setRefunding] = useState(false)
 
     const [coupons, setCoupons] = useState([])
     const [couponsLoading, setCouponsLoading] = useState(false)
@@ -87,6 +89,27 @@ export default function AdminDashboard() {
         setUpdating(false)
     }
 
+    const processRefund = async () => {
+        if (!refundForm.amount || !refundForm.reason) {
+            alert("Please enter both refund amount and reason.")
+            return
+        }
+        if (!window.confirm(`Are you sure you want to refund ₹${refundForm.amount}? This action cannot be undone.`)) return
+
+        setRefunding(true)
+        try {
+            const res = await axios.post(`${API}/api/admin/orders/${selectedOrder._id}/refund`, {
+                refundAmount: Number(refundForm.amount),
+                refundReason: refundForm.reason
+            }, { headers: { Authorization: `Bearer ${token}` } })
+            setSelectedOrder(res.data.order)
+            setRefundForm({ amount: '', reason: '' })
+            fetchOrders()
+            alert('Refund processed successfully!')
+        } catch (err) { alert(err.response?.data?.message || 'Failed to process refund') }
+        setRefunding(false)
+    }
+
     const createCoupon = async () => {
         try {
             const isFixed = couponForm.discountType === 'fixed_price'
@@ -120,6 +143,7 @@ export default function AdminDashboard() {
         setSelectedOrder(order)
         setStatusForm({ status: order.status, message: order.statusMessage || '' })
         setStatusSuccess(false)
+        setRefundForm({ amount: order.finalAmountPaid, reason: '' }) // prefill full amount
     }
 
     return (
@@ -197,7 +221,7 @@ export default function AdminDashboard() {
                                                     <td className="py-3 px-4 text-white max-w-[200px] truncate hidden md:table-cell">{order.projectTitle}</td>
                                                     <td className="py-3 px-4 text-navy-300 hidden md:table-cell">
                                                         ₹{order.finalAmountPaid?.toLocaleString('en-IN') || '—'}
-                                                        {order.discountApplied > 0 && <span className="text-emerald-400 text-xs ml-1">(-₹{order.discountApplied})</span>}
+                                                        <br/><span className={`text-[10px] px-1.5 py-0.5 rounded-sm uppercase tracking-wider font-semibold ${order.paymentStatus === 'refunded' ? 'bg-red-500/10 text-red-400 border border-red-500/20' : 'bg-emerald-500/10 text-emerald-400 border border-emerald-500/20'}`}>{order.paymentStatus || 'captured'}</span>
                                                     </td>
                                                     <td className="py-3 px-4">
                                                         <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium border ${statusColors[order.status] || 'bg-gray-500/10 text-gray-400 border-gray-500/20'}`}>
@@ -392,12 +416,48 @@ export default function AdminDashboard() {
                                             {selectedOrder.discountApplied > 0 && <span className="text-emerald-400 text-xs ml-2">(-₹{selectedOrder.discountApplied} via {selectedOrder.couponCode})</span>}
                                         </div>
                                         <div>
+                                            <span className="text-navy-500 block">Payment Status</span>
+                                            <span className={`text-[10px] px-1.5 py-0.5 rounded-sm uppercase tracking-wider font-semibold inline-block mt-1 ${selectedOrder.paymentStatus === 'refunded' ? 'bg-red-500/10 text-red-400 border border-red-500/20' : 'bg-emerald-500/10 text-emerald-400 border border-emerald-500/20'}`}>{selectedOrder.paymentStatus || 'captured'}</span>
+                                        </div>
+                                    </div>
+                                    <div className="grid grid-cols-2 gap-3">
+                                        <div>
                                             <span className="text-navy-500 block">Order Date</span>
                                             <span className="text-white">{new Date(selectedOrder.createdAt).toLocaleString('en-IN')}</span>
                                         </div>
                                     </div>
                                 </div>
                             </div>
+
+                            {/* Refund Panel */}
+                            {selectedOrder.paymentStatus === 'refunded' ? (
+                                <div className="bg-red-500/10 border border-red-500/20 rounded-xl p-4">
+                                    <h3 className="text-xs font-semibold text-red-400 uppercase tracking-wider mb-2">Refund Processed</h3>
+                                    <div className="grid grid-cols-2 gap-3 text-sm">
+                                        <div><span className="text-red-400/70 block text-xs">Refund ID</span><span className="text-red-300 font-mono text-xs">{selectedOrder.refundId}</span></div>
+                                        <div><span className="text-red-400/70 block text-xs">Amount Refunded</span><span className="text-red-300">₹{selectedOrder.refundAmount?.toLocaleString('en-IN')}</span></div>
+                                        <div className="col-span-2"><span className="text-red-400/70 block text-xs">Reason</span><span className="text-red-300">{selectedOrder.refundReason}</span></div>
+                                        <div className="col-span-2"><span className="text-red-400/70 block text-xs">Processed On</span><span className="text-red-300">{selectedOrder.refundCompletedAt ? new Date(selectedOrder.refundCompletedAt).toLocaleString('en-IN') : '—'}</span></div>
+                                    </div>
+                                </div>
+                            ) : (
+                                <div className="bg-navy-800/50 border border-red-500/20 rounded-xl p-4 space-y-3">
+                                    <h3 className="text-xs font-semibold text-red-400 uppercase tracking-wider">Process Refund</h3>
+                                    <div className="grid grid-cols-2 gap-3">
+                                        <div>
+                                            <label className="text-xs text-navy-500 block mb-1">Refund Amount (₹)</label>
+                                            <input type="number" placeholder="Amount" value={refundForm.amount} onChange={e => setRefundForm(p => ({ ...p, amount: e.target.value }))} max={selectedOrder.finalAmountPaid} className="input-field text-sm w-full" />
+                                        </div>
+                                        <div>
+                                            <label className="text-xs text-navy-500 block mb-1">Reason (for records)</label>
+                                            <input type="text" placeholder="e.g. Customer requested cancellation" value={refundForm.reason} onChange={e => setRefundForm(p => ({ ...p, reason: e.target.value }))} className="input-field text-sm w-full" />
+                                        </div>
+                                    </div>
+                                    <button onClick={processRefund} disabled={refunding} className="btn-primary !bg-red-500 hover:!bg-red-600 text-white text-sm w-full py-2">
+                                        {refunding ? 'Processing Refund via Razorpay...' : `Refund ₹${refundForm.amount || '0'} Now`}
+                                    </button>
+                                </div>
+                            )}
                         </div>
                     </div>
                 </div>

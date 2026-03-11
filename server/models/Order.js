@@ -1,8 +1,45 @@
 const mongoose = require('mongoose');
 
 const orderSchema = new mongoose.Schema({
-    orderId: { type: String, required: true, index: true },
-    paymentId: { type: String },
+    // Payment fields
+    orderId: { type: String, required: true, unique: true, index: true },
+    paymentId: { type: String, required: true },
+    razorpaySignature: { type: String },
+    paymentStatus: {
+        type: String,
+        enum: ['captured', 'refunded', 'failed'],
+        default: 'captured'
+    },
+    finalAmountPaid: { type: Number, required: true },
+    originalAmount: { type: Number },
+    couponCode: { type: String },
+    discountApplied: { type: Number, default: 0 },
+
+    // Project status
+    status: {
+        type: String,
+        enum: [
+            'pending_verification',
+            'collaborator_verified',
+            'in_progress',
+            'review_testing',
+            'completed',
+            'refund_requested',
+            'refunded'
+        ],
+        default: 'pending_verification'
+    },
+    statusMessage: { type: String },
+    statusUpdatedAt: { type: Date },
+
+    // Refund tracking
+    refundId: { type: String },
+    refundAmount: { type: Number },
+    refundReason: { type: String },
+    refundInitiatedAt: { type: Date },
+    refundCompletedAt: { type: Date },
+
+    // All existing fields
     name: { type: String, required: true },
     email: { type: String, required: true },
     university: { type: String, required: true },
@@ -18,17 +55,8 @@ const orderSchema = new mongoose.Schema({
     referenceWebsites: { type: String },
     githubRepoUrl: { type: String, required: true },
     collaboratorConfirmed: { type: Boolean, default: false },
-    couponCode: { type: String },
-    discountApplied: { type: Number, default: 0 },
-    finalAmountPaid: { type: Number },
-    status: {
-        type: String,
-        enum: ['pending_verification', 'collaborator_verified', 'in_progress', 'review_testing', 'completed', 'refunded'],
-        default: 'pending_verification',
-    },
-    statusMessage: { type: String },
-    statusUpdatedAt: { type: Date },
-    createdAt: { type: Date, default: Date.now },
+
+    createdAt: { type: Date, default: Date.now }
 });
 
 module.exports = mongoose.model('Order', orderSchema);

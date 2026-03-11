@@ -102,36 +102,16 @@ export default function OrderForm() {
     const handlePayment = async () => {
         setPaymentLoading(true)
         try {
-            // 1. Initiate order
-            const initiateRes = await axios.post(`${API}/api/orders/initiate`, {
-                name: formData.name,
-                email: formData.email,
-                university: formData.university,
-                yearOfStudy: formData.yearOfStudy,
-                projectTitle: formData.projectTitle,
-                projectDescription: formData.projectDescription,
-                selectedFeatures: formData.selectedFeatures,
+            // 1. Initiate Razorpay order (no DB save)
+            const initiateRes = await axios.post(`${API}/api/payment/create-order`, {
+                amount: finalAmount,
                 complexityLevel: formData.complexityLevel,
-                featureCount: formData.featureCount || '1-3',
-                featureList: formData.featureList,
-                deadlinePreference: formData.deadlinePreference,
-                referenceWebsites: formData.referenceWebsites,
-                githubRepoUrl: formData.githubRepoUrl.trim(),
-                collaboratorConfirmed: formData.collaboratorConfirmed,
                 couponCode: coupon?.code || null,
             })
 
-            const { mongoId, amount } = initiateRes.data
+            const { orderId, amount, currency, keyId } = initiateRes.data
 
-            // 2. Create Razorpay order
-            const paymentRes = await axios.post(`${API}/api/payment/create-order`, {
-                amount,
-                mongoId,
-            })
-
-            const { razorpayOrderId, keyId } = paymentRes.data
-
-            // 3. Load Razorpay script
+            // 2. Load Razorpay script
             const loaded = await loadRazorpayScript()
             if (!loaded) {
                 alert('Failed to load payment gateway. Please check your internet connection.')
@@ -139,8 +119,7 @@ export default function OrderForm() {
                 return
             }
 
-            // 4. Open Razorpay checkout
-            // We store mongoId and email in closure for the handler
+            // 3. Open Razorpay checkout
             const customerEmail = formData.email
 
             setTimeout(() => {
@@ -150,8 +129,9 @@ export default function OrderForm() {
                     currency: 'INR',
                     name: 'ProjixLab',
                     description: `${formData.complexityLevel} Project — ${formData.projectTitle}`,
-                    order_id: razorpayOrderId,
+                    order_id: orderId,
                     handler: function (response) {
+                        setPaymentLoading(true)
                         // Use native fetch to avoid React/Axios conflicts during Razorpay teardown
                         fetch(`${API}/api/payment/verify`, {
                             method: 'POST',
@@ -160,7 +140,12 @@ export default function OrderForm() {
                                 razorpay_order_id: response.razorpay_order_id,
                                 razorpay_payment_id: response.razorpay_payment_id,
                                 razorpay_signature: response.razorpay_signature,
-                                mongoId
+                                ...formData,
+                                githubRepoUrl: formData.githubRepoUrl.trim(),
+                                featureCount: formData.featureCount || '1-3',
+                                couponCode: coupon?.code || null,
+                                discountApplied: coupon ? (originalAmount - finalAmount) : 0,
+                                originalAmount: originalAmount
                             })
                         })
                         .then(res => res.json())
@@ -172,6 +157,11 @@ export default function OrderForm() {
                                     projectTitle: data.projectTitle,
                                     email: customerEmail,
                                 })
+                                // Wipe form data fresh
+                                setFormData({ name: '', email: '', university: '', yearOfStudy: '', projectTitle: '', projectDescription: '', complexityLevel: '', featureCount: '1-3', featureList: '', deadlinePreference: '', referenceWebsites: '', githubRepoUrl: '', collaboratorConfirmed: false, selectedFeatures: [] })
+                                setStep(0)
+                                setCoupon(null)
+
                                 setPaymentLoading(false)
                                 window.scrollTo(0, 0)
                             } else {
@@ -192,6 +182,7 @@ export default function OrderForm() {
                     modal: {
                         ondismiss: function () {
                             setPaymentLoading(false)
+                            // Do NOTHING else. Do not save order.
                         }
                     }
                 }

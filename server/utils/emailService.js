@@ -138,4 +138,42 @@ async function sendStatusUpdateEmail(order) {
     }
 }
 
-module.exports = { sendCustomerConfirmation, sendAdminNotification, sendStatusUpdateEmail };
+async function sendRefundNotification(order) {
+    try {
+        await getResend().emails.send({
+            from: 'ProjixLab <onboarding@resend.dev>',
+            to: order.email,
+            subject: `Order Refunded — ${order.projectTitle}`,
+            html: `
+<div style="font-family: 'Segoe UI', sans-serif; max-width: 600px; margin: 0 auto; background: #f8fafc; border-radius: 12px; overflow: hidden;">
+  <div style="background: linear-gradient(135deg, #7f1d1d, #991b1b); padding: 32px; text-align: center;">
+    <h1 style="color: #fff; margin: 0; font-size: 24px;">💸 Refund Processed</h1>
+  </div>
+  <div style="padding: 32px;">
+    <p style="color: #334155; font-size: 16px;">Hi <strong>${order.name}</strong>,</p>
+    <p style="color: #334155;">A refund has been processed for your order. Here are the details:</p>
+
+    <div style="background: #fee2e2; border: 2px solid #ef4444; border-radius: 12px; padding: 20px; margin: 20px 0; text-align: center;">
+      <p style="color: #b91c1c; margin: 0 0 8px 0; font-size: 13px; text-transform: uppercase; letter-spacing: 1px;">Refund Amount</p>
+      <p style="color: #7f1d1d; margin: 0; font-size: 28px; font-weight: bold; letter-spacing: 0.5px;">₹${order.refundAmount?.toLocaleString('en-IN')}</p>
+    </div>
+
+    <table style="width: 100%; border-collapse: collapse; margin: 20px 0;">
+      <tr><td style="padding: 8px 0; color: #64748b; border-bottom: 1px solid #e2e8f0;">Order ID</td><td style="padding: 8px 0; color: #0f172a; border-bottom: 1px solid #e2e8f0; font-weight: 600; font-family: monospace;">${order.orderId}</td></tr>
+      <tr><td style="padding: 8px 0; color: #64748b; border-bottom: 1px solid #e2e8f0;">Project</td><td style="padding: 8px 0; color: #0f172a; border-bottom: 1px solid #e2e8f0; font-weight: 600;">${order.projectTitle}</td></tr>
+      <tr><td style="padding: 8px 0; color: #64748b; border-bottom: 1px solid #e2e8f0;">Refund Reason</td><td style="padding: 8px 0; color: #0f172a; border-bottom: 1px solid #e2e8f0; font-weight: 600;">${order.refundReason || 'Cancellation requested'}</td></tr>
+      <tr><td style="padding: 8px 0; color: #64748b;">Refund ID</td><td style="padding: 8px 0; color: #0f172a; font-weight: 600; font-family: monospace;">${order.refundId}</td></tr>
+    </table>
+
+    <div style="background: #eff6ff; border-left: 4px solid #6366f1; padding: 16px; border-radius: 4px; margin: 20px 0;">
+      <p style="color: #334155; margin: 0; font-size: 14px;">The amount will be credited back to your original payment method within <strong>5–7 business days</strong>. If you don't receive it by then, please contact your bank with the Refund ID above.</p>
+    </div>
+  </div>
+</div>`,
+        });
+    } catch (error) {
+        console.error('Refund notification email error:', error);
+    }
+}
+
+module.exports = { sendCustomerConfirmation, sendAdminNotification, sendStatusUpdateEmail, sendRefundNotification };
