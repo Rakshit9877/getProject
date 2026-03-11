@@ -176,9 +176,9 @@ export default function LandingPage() {
 
                     <div className="grid md:grid-cols-3 gap-8 max-w-5xl mx-auto">
                         {pricingPlans.map((plan) => (
-                            <div key={plan.name} className={`glass-card p-8 relative flex flex-col ${plan.popular ? 'border-navy-500/50 ring-1 ring-navy-500/20' : ''}`}>
+                            <div key={plan.name} className={`glass-card p-8 relative flex flex-col transition-all duration-300 ${plan.popular ? 'border-emerald-500/50 ring-1 ring-emerald-500/20 shadow-[0_0_30px_rgba(16,185,129,0.1)] -translate-y-2' : 'hover:-translate-y-1'}`}>
                                 {plan.popular && (
-                                    <div className="absolute -top-3 left-1/2 -translate-x-1/2 bg-navy-500 text-white text-xs font-semibold px-4 py-1 rounded-full">
+                                    <div className="absolute -top-3 left-1/2 -translate-x-1/2 bg-emerald-500 text-white text-xs font-bold px-4 py-1.5 rounded-full shadow-lg shadow-emerald-500/20 tracking-wide uppercase">
                                         Most Popular
                                     </div>
                                 )}

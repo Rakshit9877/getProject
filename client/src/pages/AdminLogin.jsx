@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { useNavigate } from 'react-router-dom'
+import { useNavigate, Link } from 'react-router-dom'
 import axios from 'axios'
 
 const API = import.meta.env.VITE_API_URL || ''
@@ -34,11 +34,14 @@ export default function AdminLogin() {
     <div className="min-h-screen flex items-center justify-center px-4">
       <div className="max-w-sm w-full">
         <div className="text-center mb-8">
-          <a href="/" className="inline-block text-xl font-bold bg-gradient-to-r from-white to-navy-300 bg-clip-text text-transparent mb-6">
-            ProjectBuildr
-          </a>
+          <Link to="/" className="inline-block text-xl font-bold bg-gradient-to-r from-white to-navy-300 bg-clip-text text-transparent mb-6">
+            ProjixLab
+          </Link>
           <h1 className="text-2xl font-bold mb-2">Admin Login</h1>
-          <p className="text-navy-400 text-sm">Enter admin password to continue</p>
+          <p className="text-navy-400 text-sm mb-4">Enter admin password to continue</p>
+          <Link to="/" className="text-navy-500 hover:text-navy-400 text-sm flex items-center justify-center gap-1 transition-colors">
+            ← Back to Site
+          </Link>
         </div>
 
         <form onSubmit={handleLogin} className="glass-card p-6">

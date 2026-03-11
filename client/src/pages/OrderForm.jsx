@@ -61,6 +61,7 @@ export default function OrderForm() {
             if (!formData.projectTitle.trim()) newErrors.projectTitle = 'Project title is required'
             if (!formData.projectDescription.trim()) newErrors.projectDescription = 'Project description is required'
             else if (formData.projectDescription.length > 500) newErrors.projectDescription = 'Description must be 500 characters or less'
+            if (!formData.selectedFeatures || formData.selectedFeatures.length === 0) newErrors.selectedFeatures = 'Please select at least one feature for your project'
             if (!formData.complexityLevel) newErrors.complexityLevel = 'Complexity level is required'
             if (!formData.deadlinePreference) newErrors.deadlinePreference = 'Deadline preference is required'
         }
@@ -225,9 +226,22 @@ export default function OrderForm() {
     // ========== SUCCESS UI (rendered inline, no redirect) ==========
     if (orderSuccess) {
         return (
-            <div className="min-h-screen flex items-center justify-center px-4 py-12">
-                <div className="glass-card p-8 sm:p-10 max-w-lg w-full text-center">
-                    {/* Success Icon */}
+            <div className="min-h-screen pb-20">
+                {/* Top Navbar */}
+                <nav className="sticky top-0 z-50 bg-navy-950/80 backdrop-blur-xl border-b border-white/5 mb-8">
+                    <div className="max-w-4xl mx-auto px-4 h-16 flex items-center justify-between">
+                        <Link to="/" className="text-xl font-bold bg-gradient-to-r from-white to-navy-300 bg-clip-text text-transparent">
+                            ProjixLab
+                        </Link>
+                        <Link to="/" className="text-navy-400 hover:text-white text-sm flex items-center gap-1 transition-colors">
+                            <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 19l-7-7m0 0l7-7m-7 7h18" /></svg>
+                            <span className="hidden sm:inline">Back to Home</span>
+                        </Link>
+                    </div>
+                </nav>
+                <div className="flex items-center justify-center px-4">
+                    <div className="glass-card p-8 sm:p-10 max-w-lg w-full text-center">
+                        {/* Success Icon */}
                     <div className="w-20 h-20 mx-auto mb-6 rounded-full bg-emerald-500/10 border-2 border-emerald-500/30 flex items-center justify-center">
                         <svg className="w-10 h-10 text-emerald-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M5 13l4 4L19 7" />
@@ -284,18 +298,29 @@ export default function OrderForm() {
                         </p>
                     )}
                 </div>
+                </div>
             </div>
         )
     }
 
     // ========== ORDER FORM UI ==========
     return (
-        <div className="min-h-screen py-8 px-4">
-            <div className="max-w-2xl mx-auto">
-                <div className="text-center mb-8">
-                    <a href="/" className="inline-block text-xl font-bold bg-gradient-to-r from-white to-navy-300 bg-clip-text text-transparent mb-6">
+        <div className="min-h-screen pb-20">
+            {/* Top Navbar */}
+            <nav className="sticky top-0 z-50 bg-navy-950/80 backdrop-blur-xl border-b border-white/5 mb-8">
+                <div className="max-w-4xl mx-auto px-4 h-16 flex items-center justify-between">
+                    <Link to="/" className="text-xl font-bold bg-gradient-to-r from-white to-navy-300 bg-clip-text text-transparent">
                         ProjixLab
-                    </a>
+                    </Link>
+                    <Link to="/" className="text-navy-400 hover:text-white text-sm flex items-center gap-1 transition-colors">
+                        <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 19l-7-7m0 0l7-7m-7 7h18" /></svg>
+                        <span className="hidden sm:inline">Back to Home</span>
+                    </Link>
+                </div>
+            </nav>
+
+            <div className="max-w-4xl mx-auto px-4">
+                <div className="text-center mb-8">
                     <h1 className="text-2xl sm:text-3xl font-bold mb-2">Place Your Order</h1>
                     <p className="text-navy-400 text-sm">Fill in your project details to get started</p>
                 </div>

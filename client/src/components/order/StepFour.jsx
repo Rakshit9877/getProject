@@ -31,9 +31,11 @@ export default function StepFour({ formData, price, config, onPay, paymentLoadin
                 })
             } else {
                 setCouponError(res.data.message || 'Invalid coupon code.')
+                setTimeout(() => setCouponError(''), 5000)
             }
         } catch (err) {
             setCouponError(err.response?.data?.message || 'Failed to validate coupon.')
+            setTimeout(() => setCouponError(''), 5000)
         }
         setCouponLoading(false)
     }
