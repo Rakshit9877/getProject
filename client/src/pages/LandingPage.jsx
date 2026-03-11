@@ -241,8 +241,8 @@ export default function LandingPage() {
                         Astril Studio
                     </span>
                     <p className="text-navy-400 text-sm mt-4 mb-2">Custom project builds for university students</p>
-                    <a href="mailto:contact@projectbuildr.com" className="text-navy-500 hover:text-navy-400 text-sm transition-colors">
-                        contact@projectbuildr.com
+                    <a href="mailto:contact@astrilstore.in" className="text-navy-500 hover:text-navy-400 text-sm transition-colors">
+                        contact@astrilstore.in
                     </a>
                     <p className="text-navy-500/50 text-xs mt-6">© 2026 Astril Studio. All rights reserved.</p>
                 </div>

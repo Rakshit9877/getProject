@@ -9,7 +9,7 @@ function getResend() {
     return resend;
 }
 
-const CLIENT_URL = () => process.env.CLIENT_URL || 'https://get-project-gamma.vercel.app';
+const CLIENT_URL = () => process.env.CLIENT_URL || 'https://astrilstore.in';
 
 async function sendCustomerConfirmation(order) {
     try {
