@@ -11,7 +11,7 @@ const orderSchema = new mongoose.Schema({
     projectDescription: { type: String, required: true },
     selectedFeatures: { type: [String], default: [] },
     techStack: { type: [String], default: [] },
-    complexityLevel: { type: String, required: true, enum: ['Basic', 'Standard', 'Advanced'] },
+    complexityLevel: { type: String, required: true, enum: ['semi_built', 'basic', 'extended', 'Basic', 'Standard', 'Advanced'] },
     featureCount: { type: String, required: true },
     featureList: { type: String },
     deadlinePreference: { type: String, required: true },
