@@ -162,7 +162,7 @@ export default function OrderForm() {
                                 })
                                 // Wipe form data fresh
                                 setFormData({ name: '', email: '', university: '', yearOfStudy: '', projectTitle: '', projectDescription: '', complexityLevel: '', featureCount: '1-3', featureList: '', deadlinePreference: '', referenceWebsites: '', githubRepoUrl: '', collaboratorConfirmed: false, selectedFeatures: [] })
-                                setStep(0)
+                                setCurrentStep(0)
                                 setCoupon(null)
 
                                 setPaymentLoading(false)
