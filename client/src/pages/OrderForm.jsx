@@ -130,7 +130,7 @@ export default function OrderForm() {
                     key: keyId,
                     amount: Math.max(amount * 100, 100),
                     currency: 'INR',
-                    name: 'ProjixLab',
+                    name: 'Astril Studio',
                     description: `${formData.complexityLevel} Project — ${formData.projectTitle}`,
                     order_id: orderId,
                     handler: function (response) {
@@ -225,7 +225,7 @@ export default function OrderForm() {
                 <nav className="sticky top-0 z-50 bg-navy-950/80 backdrop-blur-xl border-b border-white/5 mb-8">
                     <div className="max-w-4xl mx-auto px-4 h-16 flex items-center justify-between">
                         <Link to="/" className="text-xl font-bold bg-gradient-to-r from-white to-navy-300 bg-clip-text text-transparent">
-                            ProjixLab
+                            Astril Studio
                         </Link>
                         <Link to="/" className="text-navy-400 hover:text-white text-sm flex items-center gap-1 transition-colors">
                             <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 19l-7-7m0 0l7-7m-7 7h18" /></svg>
@@ -304,7 +304,7 @@ export default function OrderForm() {
             <nav className="sticky top-0 z-50 bg-navy-950/80 backdrop-blur-xl border-b border-white/5 mb-8">
                 <div className="max-w-4xl mx-auto px-4 h-16 flex items-center justify-between">
                     <Link to="/" className="text-xl font-bold bg-gradient-to-r from-white to-navy-300 bg-clip-text text-transparent">
-                        ProjixLab
+                        Astril Studio
                     </Link>
                     <Link to="/" className="text-navy-400 hover:text-white text-sm flex items-center gap-1 transition-colors">
                         <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 19l-7-7m0 0l7-7m-7 7h18" /></svg>

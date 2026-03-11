@@ -14,7 +14,7 @@ const CLIENT_URL = () => process.env.CLIENT_URL || 'https://get-project-gamma.ve
 async function sendCustomerConfirmation(order) {
     try {
         await getResend().emails.send({
-            from: 'ProjixLab <onboarding@resend.dev>',
+            from: 'Astril Studio <onboarding@resend.dev>',
             to: order.email,
             subject: `Order Confirmed — ${order.projectTitle}`,
             html: `
@@ -63,7 +63,7 @@ async function sendCustomerConfirmation(order) {
 async function sendAdminNotification(order) {
     try {
         await getResend().emails.send({
-            from: 'ProjixLab <onboarding@resend.dev>',
+            from: 'Astril Studio <onboarding@resend.dev>',
             to: process.env.ADMIN_EMAIL || 'checktest250@gmail.com',
             subject: `New Order — ${order.projectTitle} [${order.orderId}]`,
             html: `
@@ -110,7 +110,7 @@ async function sendStatusUpdateEmail(order) {
             : '';
 
         await getResend().emails.send({
-            from: 'ProjixLab <onboarding@resend.dev>',
+            from: 'Astril Studio <onboarding@resend.dev>',
             to: order.email,
             subject: `${info.emoji} ${info.title} — ${order.projectTitle}`,
             html: `
@@ -141,7 +141,7 @@ async function sendStatusUpdateEmail(order) {
 async function sendRefundNotification(order) {
     try {
         await getResend().emails.send({
-            from: 'ProjixLab <onboarding@resend.dev>',
+            from: 'Astril Studio <onboarding@resend.dev>',
             to: order.email,
             subject: `Order Refunded — ${order.projectTitle}`,
             html: `

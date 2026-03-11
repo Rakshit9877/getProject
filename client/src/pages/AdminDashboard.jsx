@@ -152,7 +152,7 @@ export default function AdminDashboard() {
             <div className="bg-navy-900/50 border-b border-white/5 sticky top-0 z-40 backdrop-blur-xl">
                 <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex items-center justify-between h-14">
                     <div className="flex items-center gap-4">
-                        <span className="text-lg font-bold bg-gradient-to-r from-white to-navy-300 bg-clip-text text-transparent">ProjixLab</span>
+                        <span className="text-lg font-bold bg-gradient-to-r from-white to-navy-300 bg-clip-text text-transparent">Astril Studio</span>
                         <span className="text-navy-500 text-sm hidden sm:inline">/ Admin Dashboard</span>
                     </div>
                     <button onClick={handleLogout} className="text-sm text-navy-400 hover:text-white transition-colors">Logout</button>

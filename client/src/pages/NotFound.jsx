@@ -4,7 +4,7 @@ export default function NotFound() {
     return (
         <div className="min-h-screen flex flex-col items-center justify-center p-4">
             <Link to="/" className="inline-block text-xl font-bold bg-gradient-to-r from-white to-navy-300 bg-clip-text text-transparent mb-8">
-                ProjixLab
+                Astril Studio
             </Link>
 
             <div className="glass-card max-w-md w-full p-8 sm:p-10 text-center animate-fade-in relative overflow-hidden">
@@ -35,8 +35,7 @@ export default function NotFound() {
             </div>
             
             <p className="text-navy-500 text-xs mt-8">
-                © {new Date().getFullYear()} ProjixLab
-            </p>
+                © 2026 Astril Studio. All rights reserved.</p>
         </div>
     )
 }

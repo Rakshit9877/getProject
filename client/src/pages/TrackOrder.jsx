@@ -45,7 +45,7 @@ export default function TrackOrder() {
             <div className="max-w-2xl mx-auto">
                 <div className="text-center mb-8">
                     <Link to="/" className="inline-block text-xl font-bold bg-gradient-to-r from-white to-navy-300 bg-clip-text text-transparent mb-6">
-                        ProjixLab
+                        Astril Studio
                     </Link>
                     <h1 className="text-2xl sm:text-3xl font-bold mb-2">Track Your Order</h1>
                     <p className="text-navy-400 text-sm">Enter your Order ID to see your project status</p>

@@ -1,5 +1,5 @@
 {
-  "name": "projectbuildr-server",
+  "name": "astril-studio-server",
   "version": "1.0.0",
   "description": "Backend for ProjectBuildr — student project development service",
   "main": "index.js",

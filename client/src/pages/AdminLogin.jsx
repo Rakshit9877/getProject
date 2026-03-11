@@ -35,7 +35,7 @@ export default function AdminLogin() {
       <div className="max-w-sm w-full">
         <div className="text-center mb-8">
           <Link to="/" className="inline-block text-xl font-bold bg-gradient-to-r from-white to-navy-300 bg-clip-text text-transparent mb-6">
-            ProjixLab
+            Astril Studio
           </Link>
           <h1 className="text-2xl font-bold mb-2">Admin Login</h1>
           <p className="text-navy-400 text-sm mb-4">Enter admin password to continue</p>
