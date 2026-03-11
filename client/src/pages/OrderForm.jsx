@@ -102,6 +102,9 @@ export default function OrderForm() {
     const handlePayment = async () => {
         setPaymentLoading(true)
         try {
+            const originalAmount = config?.pricing?.[formData.complexityLevel] || 0
+            const finalAmount = coupon ? coupon.discountedPrice : originalAmount
+
             // 1. Initiate Razorpay order (no DB save)
             const initiateRes = await axios.post(`${API}/api/payment/create-order`, {
                 amount: finalAmount,
