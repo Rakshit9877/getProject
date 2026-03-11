@@ -23,6 +23,8 @@ app.use(cors({
 app.use(express.json());
 
 // Routes
+app.get('/api/health', (req, res) => res.status(200).json({ status: 'ok' }));
+
 app.use('/api/orders', orderRoutes);
 app.use('/api/payment', paymentRoutes);
 app.use('/api/admin', adminRoutes);
