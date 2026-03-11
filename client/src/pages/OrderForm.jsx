@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react'
-import { useNavigate } from 'react-router-dom'
+import { Link } from 'react-router-dom'
 import axios from 'axios'
 import StepOne from '../components/order/StepOne'
 import StepTwo from '../components/order/StepTwo'
@@ -28,13 +28,16 @@ const initialFormData = {
 }
 
 export default function OrderForm() {
-    const navigate = useNavigate()
     const [currentStep, setCurrentStep] = useState(0)
     const [formData, setFormData] = useState(initialFormData)
     const [errors, setErrors] = useState({})
     const [config, setConfig] = useState(null)
     const [paymentLoading, setPaymentLoading] = useState(false)
     const [coupon, setCoupon] = useState(null)
+
+    // SUCCESS STATE — renders inline, no redirect needed
+    const [orderSuccess, setOrderSuccess] = useState(null)
+    const [copied, setCopied] = useState(false)
 
     useEffect(() => {
         axios.get(`${API}/api/config`).then(res => setConfig(res.data)).catch(console.error)
@@ -119,7 +122,7 @@ export default function OrderForm() {
 
             const { mongoId, amount } = initiateRes.data
 
-            // 2. Create Razorpay order (always go through Razorpay, even for ₹1)
+            // 2. Create Razorpay order
             const paymentRes = await axios.post(`${API}/api/payment/create-order`, {
                 amount,
                 mongoId,
@@ -135,7 +138,10 @@ export default function OrderForm() {
                 return
             }
 
-            // 4. Open Razorpay checkout safely outside the current React render cycle
+            // 4. Open Razorpay checkout
+            // We store mongoId and email in closure for the handler
+            const customerEmail = formData.email
+
             setTimeout(() => {
                 const options = {
                     key: keyId,
@@ -145,10 +151,7 @@ export default function OrderForm() {
                     description: `${formData.complexityLevel} Project — ${formData.projectTitle}`,
                     order_id: razorpayOrderId,
                     handler: function (response) {
-                        setPaymentLoading(true)
-                        
-                        // Fire-and-forget native fetch specifically to escape React's event loop
-                        // because Razorpay's iframe teardown crashes React otherwise.
+                        // Use native fetch to avoid React/Axios conflicts during Razorpay teardown
                         fetch(`${API}/api/payment/verify`, {
                             method: 'POST',
                             headers: { 'Content-Type': 'application/json' },
@@ -161,21 +164,22 @@ export default function OrderForm() {
                         })
                         .then(res => res.json())
                         .then(data => {
-                            if(data.success) {
-                                sessionStorage.setItem('orderSuccess', JSON.stringify({
+                            if (data.success) {
+                                // Show success UI inline — NO redirect needed!
+                                setOrderSuccess({
                                     orderId: data.orderId,
                                     projectTitle: data.projectTitle,
-                                    email: formData.email,
-                                }))
-                                // Hard browser redirect, completely bypassing React Router
-                                window.location.replace('/success')
+                                    email: customerEmail,
+                                })
+                                setPaymentLoading(false)
+                                window.scrollTo(0, 0)
                             } else {
-                                throw new Error('Verification failed on server')
+                                throw new Error(data.message || 'Verification failed')
                             }
                         })
                         .catch(err => {
                             console.error('Payment verification error:', err)
-                            alert('Payment verification failed! Pls contact support with your payment ID.')
+                            alert('Payment verification failed! Please contact support with your payment ID: ' + response.razorpay_payment_id)
                             setPaymentLoading(false)
                         })
                     },
@@ -192,8 +196,8 @@ export default function OrderForm() {
                 }
 
                 const rzp = new window.Razorpay(options)
-                
-                rzp.on('payment.failed', function (response){
+
+                rzp.on('payment.failed', function (response) {
                     console.error("Razorpay Payment Failed:", response.error)
                     alert(`Payment Failed: ${response.error.description || 'Unknown error'}`)
                     setPaymentLoading(false)
@@ -208,8 +212,83 @@ export default function OrderForm() {
         }
     }
 
+    const copyOrderId = () => {
+        if (orderSuccess?.orderId) {
+            navigator.clipboard.writeText(orderSuccess.orderId)
+            setCopied(true)
+            setTimeout(() => setCopied(false), 2000)
+        }
+    }
+
     const price = config?.pricing?.[formData.complexityLevel] || 0
 
+    // ========== SUCCESS UI (rendered inline, no redirect) ==========
+    if (orderSuccess) {
+        return (
+            <div className="min-h-screen flex items-center justify-center px-4 py-12">
+                <div className="glass-card p-8 sm:p-10 max-w-lg w-full text-center">
+                    {/* Success Icon */}
+                    <div className="w-20 h-20 mx-auto mb-6 rounded-full bg-emerald-500/10 border-2 border-emerald-500/30 flex items-center justify-center">
+                        <svg className="w-10 h-10 text-emerald-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M5 13l4 4L19 7" />
+                        </svg>
+                    </div>
+
+                    <h1 className="text-2xl sm:text-3xl font-bold mb-2">Your Order is Confirmed!</h1>
+                    <p className="text-navy-400 text-sm mb-8">{orderSuccess.projectTitle}</p>
+
+                    {/* Order ID Box */}
+                    <div className="bg-navy-900/80 border-2 border-navy-500/30 rounded-xl p-5 mb-4">
+                        <p className="text-xs font-semibold text-navy-400 uppercase tracking-wider mb-2">Your Order ID</p>
+                        <div className="flex items-center justify-center gap-3">
+                            <span className="text-lg sm:text-xl font-mono font-bold text-white tracking-wider select-all">
+                                {orderSuccess.orderId}
+                            </span>
+                            <button
+                                onClick={copyOrderId}
+                                className="p-2 rounded-lg bg-navy-500/20 hover:bg-navy-500/30 transition-colors flex-shrink-0"
+                                title="Copy Order ID"
+                            >
+                                {copied ? (
+                                    <svg className="w-4 h-4 text-emerald-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                                    </svg>
+                                ) : (
+                                    <svg className="w-4 h-4 text-navy-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" />
+                                    </svg>
+                                )}
+                            </button>
+                        </div>
+                    </div>
+
+                    <div className="bg-navy-500/5 border border-navy-500/20 rounded-xl p-4 mb-8">
+                        <p className="text-sm text-navy-300">
+                            <strong>Save this Order ID.</strong> You'll need it to track your project status.
+                        </p>
+                    </div>
+
+                    {/* Action Buttons */}
+                    <div className="flex flex-col sm:flex-row items-center gap-3 mb-6">
+                        <Link to="/track" className="btn-primary w-full sm:w-auto text-center">
+                            Track Your Order →
+                        </Link>
+                        <Link to="/" className="btn-ghost w-full sm:w-auto text-center border border-white/10">
+                            Go Home
+                        </Link>
+                    </div>
+
+                    {orderSuccess.email && (
+                        <p className="text-xs text-navy-500">
+                            A confirmation email with your Order ID has been sent to <strong className="text-navy-400">{orderSuccess.email}</strong>
+                        </p>
+                    )}
+                </div>
+            </div>
+        )
+    }
+
+    // ========== ORDER FORM UI ==========
     return (
         <div className="min-h-screen py-8 px-4">
             <div className="max-w-2xl mx-auto">
