@@ -1,13 +1,43 @@
 const pricing = {
-  Basic: 499,
-  Standard: 999,
-  Advanced: 1799,
+  semi_built: 500,
+  basic: 1000,
+  extended: 1500,
+};
+
+const pricingLabels = {
+  semi_built: 'Semi Built',
+  basic: 'Full Basic Project',
+  extended: 'Full Project + Extended Features',
 };
 
 const complexityDescriptions = {
-  Basic: 'Simple CRUD app, 2–3 pages',
-  Standard: 'Multiple features, user auth, 4–6 pages',
-  Advanced: 'Complex logic, admin panel, integrations',
+  semi_built: 'Core structure ready — a few features left for you to add',
+  basic: 'A complete, fully working project covering all requirements',
+  extended: 'Full project plus advanced features, polish, and extras',
 };
 
-module.exports = { pricing, complexityDescriptions };
+const pricingFeatures = {
+  semi_built: [
+    'Project skeleton and folder structure',
+    'Core functionality implemented',
+    '2–3 features built, remaining for you to complete',
+    'GitHub delivery',
+    'Basic documentation',
+  ],
+  basic: [
+    'Fully functional project',
+    'All requested core features',
+    'Clean, readable code',
+    'GitHub delivery',
+    'README with setup instructions',
+  ],
+  extended: [
+    'Everything in Full Basic',
+    'Additional advanced features',
+    'UI polish and responsiveness',
+    'GitHub delivery',
+    'Full documentation and comments',
+  ],
+};
+
+module.exports = { pricing, pricingLabels, complexityDescriptions, pricingFeatures };

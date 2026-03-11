@@ -9,7 +9,7 @@ const orderRoutes = require('./routes/orderRoutes');
 const paymentRoutes = require('./routes/paymentRoutes');
 const adminRoutes = require('./routes/adminRoutes');
 const couponRoutes = require('./routes/couponRoutes');
-const { pricing, complexityDescriptions } = require('./config/pricing');
+const { pricing, pricingLabels, complexityDescriptions, pricingFeatures } = require('./config/pricing');
 
 const app = express();
 
@@ -32,7 +32,9 @@ app.use('/api/coupons', couponRoutes);
 app.get('/api/config', (req, res) => {
     res.json({
         pricing,
+        pricingLabels,
         complexityDescriptions,
+        pricingFeatures,
         githubUsername: process.env.GITHUB_USERNAME,
     });
 });

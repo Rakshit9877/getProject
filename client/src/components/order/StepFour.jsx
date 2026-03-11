@@ -3,6 +3,12 @@ import axios from 'axios'
 
 const API = import.meta.env.VITE_API_URL || ''
 
+const tierLabels = {
+    semi_built: 'Semi Built',
+    basic: 'Full Basic Project',
+    extended: 'Full Project + Extended Features',
+}
+
 export default function StepFour({ formData, price, config, onPay, paymentLoading, coupon, setCoupon }) {
     const [couponInput, setCouponInput] = useState('')
     const [couponLoading, setCouponLoading] = useState(false)
@@ -70,7 +76,7 @@ export default function StepFour({ formData, price, config, onPay, paymentLoadin
                             </div>
                         )}
                         <div className="grid grid-cols-2 gap-3">
-                            <div><span className="text-navy-500">Complexity</span><p className="text-white font-medium">{formData.complexityLevel}</p></div>
+                            <div><span className="text-navy-500">Complexity</span><p className="text-white font-medium">{tierLabels[formData.complexityLevel] || formData.complexityLevel}</p></div>
                             <div><span className="text-navy-500">Deadline</span><p className="text-white font-medium">{formData.deadlinePreference}</p></div>
                         </div>
                         {formData.featureList && <div><span className="text-navy-500">Additional Notes</span><p className="text-white whitespace-pre-line">{formData.featureList}</p></div>}
@@ -123,7 +129,7 @@ export default function StepFour({ formData, price, config, onPay, paymentLoadin
                             </div>
                         </div>
                         <div className="text-right">
-                            <p className="text-xs text-navy-400">{formData.complexityLevel} Project</p>
+                            <p className="text-xs text-navy-400">{tierLabels[formData.complexityLevel] || formData.complexityLevel}</p>
                             <p className="text-xs text-navy-500">Inclusive of all taxes</p>
                             {coupon && <p className="text-xs text-emerald-400 mt-1">🎟️ {coupon.code} applied</p>}
                         </div>

@@ -1,4 +1,5 @@
 const { Resend } = require('resend');
+const { pricingLabels } = require('../config/pricing');
 
 let resend;
 function getResend() {
@@ -33,7 +34,7 @@ async function sendCustomerConfirmation(order) {
 
     <table style="width: 100%; border-collapse: collapse; margin: 20px 0;">
       <tr><td style="padding: 8px 0; color: #64748b; border-bottom: 1px solid #e2e8f0;">Project</td><td style="padding: 8px 0; color: #0f172a; border-bottom: 1px solid #e2e8f0; font-weight: 600;">${order.projectTitle}</td></tr>
-      <tr><td style="padding: 8px 0; color: #64748b; border-bottom: 1px solid #e2e8f0;">Complexity</td><td style="padding: 8px 0; color: #0f172a; border-bottom: 1px solid #e2e8f0; font-weight: 600;">${order.complexityLevel}</td></tr>
+      <tr><td style="padding: 8px 0; color: #64748b; border-bottom: 1px solid #e2e8f0;">Complexity</td><td style="padding: 8px 0; color: #0f172a; border-bottom: 1px solid #e2e8f0; font-weight: 600;">${pricingLabels[order.complexityLevel] || order.complexityLevel}</td></tr>
       <tr><td style="padding: 8px 0; color: #64748b; border-bottom: 1px solid #e2e8f0;">Deadline</td><td style="padding: 8px 0; color: #0f172a; border-bottom: 1px solid #e2e8f0; font-weight: 600;">${order.deadlinePreference}</td></tr>
       <tr><td style="padding: 8px 0; color: #64748b; border-bottom: 1px solid #e2e8f0;">Amount Paid</td><td style="padding: 8px 0; color: #0f172a; border-bottom: 1px solid #e2e8f0; font-weight: 600;">₹${order.finalAmountPaid || order.amount}</td></tr>
       <tr><td style="padding: 8px 0; color: #64748b;">GitHub Repo</td><td style="padding: 8px 0; color: #0f172a; font-weight: 600;">${order.githubRepoUrl}</td></tr>
@@ -75,7 +76,7 @@ async function sendAdminNotification(order) {
     <tr><td style="padding: 8px; color: #64748b; border-bottom: 1px solid #e2e8f0;">Email</td><td style="padding: 8px; border-bottom: 1px solid #e2e8f0;">${order.email}</td></tr>
     <tr><td style="padding: 8px; color: #64748b; border-bottom: 1px solid #e2e8f0;">University</td><td style="padding: 8px; border-bottom: 1px solid #e2e8f0;">${order.university}</td></tr>
     <tr><td style="padding: 8px; color: #64748b; border-bottom: 1px solid #e2e8f0;">Project</td><td style="padding: 8px; border-bottom: 1px solid #e2e8f0;"><strong>${order.projectTitle}</strong></td></tr>
-    <tr><td style="padding: 8px; color: #64748b; border-bottom: 1px solid #e2e8f0;">Complexity</td><td style="padding: 8px; border-bottom: 1px solid #e2e8f0;">${order.complexityLevel}</td></tr>
+    <tr><td style="padding: 8px; color: #64748b; border-bottom: 1px solid #e2e8f0;">Complexity</td><td style="padding: 8px; border-bottom: 1px solid #e2e8f0;">${pricingLabels[order.complexityLevel] || order.complexityLevel}</td></tr>
     <tr><td style="padding: 8px; color: #64748b; border-bottom: 1px solid #e2e8f0;">Tech Stack</td><td style="padding: 8px; border-bottom: 1px solid #e2e8f0;">${(order.techStack || []).join(', ')}</td></tr>
     <tr><td style="padding: 8px; color: #64748b; border-bottom: 1px solid #e2e8f0;">Features</td><td style="padding: 8px; border-bottom: 1px solid #e2e8f0;">${(order.selectedFeatures || []).join(', ')}</td></tr>
     <tr><td style="padding: 8px; color: #64748b; border-bottom: 1px solid #e2e8f0;">Deadline</td><td style="padding: 8px; border-bottom: 1px solid #e2e8f0;">${order.deadlinePreference}</td></tr>

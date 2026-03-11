@@ -10,24 +10,24 @@ const yearLevels = [
 
 const pricingPlans = [
     {
-        name: 'Basic',
-        price: '499',
-        desc: 'Simple CRUD app, 2–3 pages',
-        features: ['2–3 Pages', 'Basic CRUD Operations', 'Clean UI', 'GitHub Delivery', 'Source Code Included'],
+        name: 'Semi Built',
+        price: '500',
+        desc: 'Perfect if you want to learn by completing a partially built project',
+        features: ['Project skeleton and folder structure', 'Core functionality implemented', '2–3 features built, remaining for you', 'GitHub delivery', 'Basic documentation'],
         popular: false,
     },
     {
-        name: 'Standard',
-        price: '999',
-        desc: 'Multiple features, user auth, 4–6 pages',
-        features: ['4–6 Pages', 'User Authentication', 'REST API', 'Database Integration', 'Responsive Design', 'GitHub Delivery'],
+        name: 'Full Basic Project',
+        price: '1,000',
+        desc: 'A complete working project delivered to your GitHub',
+        features: ['Fully functional project', 'All requested core features', 'Clean, readable code', 'GitHub delivery', 'README with setup instructions'],
         popular: true,
     },
     {
-        name: 'Advanced',
-        price: '1,799',
-        desc: 'Complex logic, admin panel, integrations',
-        features: ['6+ Pages', 'Admin Panel', 'Complex Business Logic', 'File Uploads', 'Email Integration', 'Full Documentation', 'GitHub Delivery'],
+        name: 'Full Project + Extended',
+        price: '1,500',
+        desc: 'Maximum features, polish, and documentation',
+        features: ['Everything in Full Basic', 'Additional advanced features', 'UI polish and responsiveness', 'GitHub delivery', 'Full documentation and comments'],
         popular: false,
     },
 ]

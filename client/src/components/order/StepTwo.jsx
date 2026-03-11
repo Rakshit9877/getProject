@@ -171,25 +171,66 @@ export default function StepTwo({ formData, updateField, errors }) {
                     <label className="text-sm text-navy-300 block mb-2">
                         Complexity Level <span className="text-red-400">*</span>
                     </label>
-                    <div className="grid grid-cols-3 gap-3">
+                    <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
                         {[
-                            { level: 'Basic', desc: '2–3 pages, simple CRUD', price: '₹499' },
-                            { level: 'Standard', desc: '4–6 pages, auth + API', price: '₹999' },
-                            { level: 'Advanced', desc: '6+ pages, complex logic', price: '₹1,799' },
-                        ].map(({ level, desc, price }) => (
+                            {
+                                level: 'semi_built',
+                                label: 'Semi Built',
+                                desc: 'Core structure ready — a few features left for you to add',
+                                price: '₹500',
+                                features: ['Project skeleton & structure', 'Core functionality', '2–3 features built', 'GitHub delivery', 'Basic docs'],
+                                popular: false,
+                            },
+                            {
+                                level: 'basic',
+                                label: 'Full Basic Project',
+                                desc: 'A complete, fully working project covering all requirements',
+                                price: '₹1,000',
+                                features: ['Fully functional project', 'All core features', 'Clean, readable code', 'GitHub delivery', 'README included'],
+                                popular: true,
+                            },
+                            {
+                                level: 'extended',
+                                label: 'Full Project + Extended',
+                                desc: 'Full project plus advanced features, polish, and extras',
+                                price: '₹1,500',
+                                features: ['Everything in Basic', 'Advanced features', 'UI polish & responsive', 'GitHub delivery', 'Full documentation'],
+                                popular: false,
+                            },
+                        ].map(({ level, label, desc, price, features, popular }) => (
                             <button
                                 key={level}
                                 type="button"
                                 onClick={() => updateField('complexityLevel', level)}
-                                className={`p-3 rounded-xl border text-center transition-all ${
+                                className={`relative p-4 rounded-xl border text-left transition-all ${
                                     formData.complexityLevel === level
-                                        ? 'bg-navy-500/15 border-navy-500/50 text-white'
+                                        ? 'bg-navy-500/15 border-navy-500/50 text-white ring-2 ring-navy-500/30'
                                         : 'bg-navy-900/30 border-white/10 text-navy-400 hover:border-white/20'
                                 }`}
                             >
-                                <div className="font-semibold text-sm">{level}</div>
-                                <div className="text-xs mt-0.5 text-navy-500">{desc}</div>
-                                <div className="text-xs mt-1 font-medium text-navy-300">{price}</div>
+                                {popular && (
+                                    <span className="absolute -top-2.5 left-1/2 -translate-x-1/2 bg-navy-500 text-white text-[10px] font-semibold px-3 py-0.5 rounded-full">
+                                        Most Popular
+                                    </span>
+                                )}
+                                <div className="flex items-center justify-between mb-1">
+                                    <div className="font-semibold text-sm">{label}</div>
+                                    {formData.complexityLevel === level && (
+                                        <svg className="w-5 h-5 text-emerald-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M5 13l4 4L19 7" />
+                                        </svg>
+                                    )}
+                                </div>
+                                <div className="text-lg font-bold text-white mb-1">{price}</div>
+                                <div className="text-xs text-navy-500 mb-3">{desc}</div>
+                                <ul className="space-y-1">
+                                    {features.map(f => (
+                                        <li key={f} className="text-xs text-navy-400 flex items-center gap-1.5">
+                                            <svg className="w-3 h-3 text-emerald-400 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" /></svg>
+                                            {f}
+                                        </li>
+                                    ))}
+                                </ul>
                             </button>
                         ))}
                     </div>
