@@ -27,6 +27,7 @@ export default function StepTwo({ formData, updateField, errors }) {
                 'Search and filter functionality',
             ],
         },
+        /* Temporarily hidden as per request
         {
             title: 'External & Advanced',
             icon: '⚡',
@@ -37,6 +38,7 @@ export default function StepTwo({ formData, updateField, errors }) {
                 'REST API / connect to external service',
             ],
         },
+        */
     ]
 
     const selected = formData.selectedFeatures || []
@@ -242,17 +244,23 @@ export default function StepTwo({ formData, updateField, errors }) {
                     <label className="text-sm text-navy-300 block mb-2">
                         Deadline Preference <span className="text-red-400">*</span>
                     </label>
-                    <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
                         {[
                             { value: 'Relaxed (7-10 days)', label: 'Relaxed', sub: '7–10 days' },
                             { value: 'Standard (4-7 days)', label: 'Standard', sub: '4–7 days' },
-                            { value: 'Urgent (2-3 days)', label: 'Urgent', sub: '2–3 days' },
-                        ].map(({ value, label, sub }) => (
+                            { value: 'Urgent (1 day)', label: 'Urgent (Full)', sub: '1 Day Delivery' },
+                            { 
+                                value: 'Emergency (Few Hours)', 
+                                label: 'Emergency (Semi Built)', 
+                                sub: 'Few Hours',
+                                desc: 'Evaluations going on and still not done? Get your project in a few hours!'
+                            },
+                        ].map(({ value, label, sub, desc }) => (
                             <button
                                 key={value}
                                 type="button"
                                 onClick={() => updateField('deadlinePreference', value)}
-                                className={`p-3 rounded-xl border text-center transition-all ${
+                                className={`p-3 rounded-xl border text-center transition-all flex flex-col justify-center ${
                                     formData.deadlinePreference === value
                                         ? 'bg-navy-500/15 border-navy-500/50 text-white'
                                         : 'bg-navy-900/30 border-white/10 text-navy-400 hover:border-white/20'
@@ -260,6 +268,7 @@ export default function StepTwo({ formData, updateField, errors }) {
                             >
                                 <div className="font-semibold text-sm">{label}</div>
                                 <div className="text-xs text-navy-500">{sub}</div>
+                                {desc && <div className="text-[10px] text-emerald-400 leading-tight mt-1.5">{desc}</div>}
                             </button>
                         ))}
                     </div>
