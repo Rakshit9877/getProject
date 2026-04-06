@@ -1,8 +1,8 @@
 export default function StepThree({ formData, updateField, errors, githubUsername }) {
   return (
     <div>
-      <h2 className="text-xl font-semibold mb-1">GitHub Collaboration</h2>
-      <p className="text-navy-400 text-sm mb-6">Set up your repository for code delivery</p>
+      <h2 className="text-xl font-semibold mb-1">Project Delivery Setup</h2>
+      <p className="text-navy-400 text-sm mb-6">Provide access for project delivery and collaboration</p>
 
       {/* Instructions */}
       <div className="bg-navy-900/50 border border-white/10 rounded-xl p-5 mb-6">
@@ -17,11 +17,11 @@ export default function StepThree({ formData, updateField, errors, githubUsernam
           </li>
           <li className="flex gap-3">
             <span className="flex-shrink-0 w-6 h-6 rounded-full bg-navy-500/20 text-navy-400 flex items-center justify-center text-xs font-semibold">2</span>
-            <span>Go to <strong className="text-white">Settings → Collaborators → Add collaborator</strong></span>
+            <span>Go to <strong className="text-white">Settings &rarr; Collaborators &rarr; Add collaborator</strong></span>
           </li>
           <li className="flex gap-3">
             <span className="flex-shrink-0 w-6 h-6 rounded-full bg-navy-500/20 text-navy-400 flex items-center justify-center text-xs font-semibold">3</span>
-            <span>Add username: <code className="bg-navy-500/20 text-navy-300 px-2 py-0.5 rounded font-mono text-xs">{githubUsername}</code></span>
+            <span>Add collaborator: <code className="bg-navy-500/20 text-navy-300 px-2 py-0.5 rounded font-mono text-xs">{githubUsername}</code></span>
           </li>
           <li className="flex gap-3">
             <span className="flex-shrink-0 w-6 h-6 rounded-full bg-navy-500/20 text-navy-400 flex items-center justify-center text-xs font-semibold">4</span>
@@ -66,7 +66,7 @@ export default function StepThree({ formData, updateField, errors, githubUsernam
           </div>
           <div>
             <div className="text-sm font-medium">I have added <code className="text-navy-400 font-mono">{githubUsername}</code> as a collaborator</div>
-            <div className="text-xs text-navy-400 mt-1">You must grant access before proceeding to payment</div>
+            <div className="text-xs text-navy-400 mt-1">Access is required to begin development</div>
           </div>
         </label>
         {errors.collaboratorConfirmed && <p className="input-error">{errors.collaboratorConfirmed}</p>}
@@ -80,7 +80,7 @@ export default function StepThree({ formData, updateField, errors, githubUsernam
           </svg>
           <div className="text-sm">
             <p className="text-amber-300 font-medium mb-1">Important</p>
-            <p className="text-amber-200/70">Payment will be processed in the next step. Work begins only after we verify collaborator access. If access is not granted within 24 hours of payment, a full refund will be issued.</p>
+            <p className="text-amber-200/70">Work begins after access is verified. Refund available if setup is not completed. If access is not granted within 24 hours of payment, a full refund will be issued.</p>
           </div>
         </div>
       </div>

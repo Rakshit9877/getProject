@@ -1,33 +1,33 @@
 import { Link } from 'react-router-dom'
 import { useState } from 'react'
 
-const yearLevels = [
-    { year: 'Year 1', icon: '📘', desc: 'Foundation projects — basic apps, simple CRUD systems' },
-    { year: 'Year 2', icon: '📗', desc: 'Intermediate projects — full-stack apps, APIs, databases' },
-    { year: 'Year 3', icon: '📙', desc: 'Advanced projects — complex systems, auth, admin panels' },
-    { year: 'Year 4', icon: '📕', desc: 'Final year projects — complete solutions with documentation' },
+const experienceLevels = [
+    { level: 'Beginner', desc: 'Simple apps, CRUD systems, and mini-projects' },
+    { level: 'Intermediate', desc: 'Full-stack apps, APIs, and database-driven systems' },
+    { level: 'Advanced', desc: 'Scalable systems, authentication, dashboards' },
+    { level: 'Expert', desc: 'Advanced solutions for complex, specialized, and enterprise-grade projects (Premium tier)' },
 ]
 
 const pricingPlans = [
     {
-        name: 'Semi Built',
+        name: 'Starter',
         price: '500',
-        desc: 'Perfect if you want to learn by completing a partially built project',
+        desc: 'Base structure with partial implementation',
         features: ['Project skeleton and folder structure', 'Core functionality implemented', '2–3 features built, remaining for you', 'GitHub delivery', 'Basic documentation'],
         popular: false,
     },
     {
-        name: 'Full Basic Project',
+        name: 'Standard Project',
         price: '1,000',
-        desc: 'A complete working project delivered to your GitHub',
+        desc: 'A fully functional project with clean, scalable code delivered to your GitHub',
         features: ['Fully functional project', 'All requested core features', 'Clean, readable code', 'GitHub delivery', 'README with setup instructions'],
         popular: true,
     },
     {
-        name: 'Full Project + Extended',
+        name: 'Premium Project',
         price: '1,500',
-        desc: 'Maximum features, polish, and documentation',
-        features: ['Everything in Full Basic', 'Additional advanced features', 'UI polish and responsiveness', 'GitHub delivery', 'Full documentation and comments'],
+        desc: 'Advanced freelance-grade solutions with premium features, scalability, and full documentation',
+        features: ['Everything in Standard', 'Additional advanced features', 'UI polish and responsiveness', 'GitHub delivery', 'Full documentation and comments'],
         popular: false,
     },
 ]
@@ -85,11 +85,11 @@ export default function LandingPage() {
                 <div className="section-container relative z-10 text-center">
                     <div className="inline-flex items-center gap-2 bg-navy-500/10 border border-navy-500/20 rounded-full px-4 py-1.5 mb-8">
                         <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
-                        <span className="text-sm text-navy-300">Trusted by 500+ students</span>
+                        <span className="text-sm text-navy-300">Trusted by 500+ clients</span>
                     </div>
 
                     <h1 className="text-5xl sm:text-6xl lg:text-7xl font-extrabold tracking-tight mb-6">
-                        Your Project.
+                        Your Ideas.
                         <br />
                         <span className="bg-gradient-to-r from-navy-400 via-navy-300 to-navy-500 bg-clip-text text-transparent">
                             Built Right.
@@ -97,12 +97,12 @@ export default function LandingPage() {
                     </h1>
 
                     <p className="text-lg sm:text-xl text-navy-300 max-w-2xl mx-auto mb-10 leading-relaxed">
-                        Custom-built web projects for university students. From simple CRUD apps to complex full-stack systems — delivered directly to your GitHub repository.
+                        End-to-end freelance development for all types of projects — from simple apps to production-ready systems, delivered directly to your GitHub.
                     </p>
 
                     <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
                         <Link to="/order" className="btn-primary text-lg !py-4 !px-10">
-                            Get Your Project →
+                            Get Your Project
                         </Link>
                         <a href="#pricing" className="btn-secondary text-lg !py-4 !px-10">
                             View Pricing
@@ -116,7 +116,7 @@ export default function LandingPage() {
                             <div className="text-sm text-navy-400">Projects Built</div>
                         </div>
                         <div>
-                            <div className="text-2xl sm:text-3xl font-bold text-white">4.9★</div>
+                            <div className="text-2xl sm:text-3xl font-bold text-white">4.9/5</div>
                             <div className="text-sm text-navy-400">Avg Rating</div>
                         </div>
                         <div>
@@ -135,13 +135,12 @@ export default function LandingPage() {
 
                     <div className="grid md:grid-cols-3 gap-8">
                         {[
-                            { step: '01', icon: '📝', title: 'Submit Your Requirements', desc: 'Fill in the order form with your project details, tech stack, and features needed.' },
-                            { step: '02', icon: '💳', title: 'Make Payment', desc: 'Pay securely via Razorpay. Work begins immediately after GitHub access is verified.' },
-                            { step: '03', icon: '🚀', title: 'Get Your Project', desc: 'Code is pushed directly to your GitHub repo. Track progress in real-time.' },
+                            { step: '01', title: 'Submit Your Requirements', desc: 'Share your idea, requirements, tech stack, or problem statement for any type of project.' },
+                            { step: '02', title: 'Make Payment', desc: 'Secure payment via Razorpay. Work begins immediately after requirement confirmation.' },
+                            { step: '03', title: 'Get Your Project', desc: 'Get your project delivered on GitHub with clean code, documentation, and progress updates.' },
                         ].map((item) => (
                             <div key={item.step} className="glass-card p-8 relative group hover:border-navy-500/30 transition-all duration-300">
                                 <div className="text-xs font-mono text-navy-500 mb-4">{item.step}</div>
-                                <div className="text-3xl mb-4">{item.icon}</div>
                                 <h3 className="text-lg font-semibold mb-2">{item.title}</h3>
                                 <p className="text-navy-400 text-sm leading-relaxed">{item.desc}</p>
                             </div>
@@ -150,17 +149,16 @@ export default function LandingPage() {
                 </div>
             </section>
 
-            {/* Year Levels */}
+            {/* Experience Levels */}
             <section className="py-20 border-t border-white/5">
                 <div className="section-container">
-                    <h2 className="text-3xl sm:text-4xl font-bold text-center mb-4">We Build For Every Year</h2>
-                    <p className="text-navy-400 text-center mb-14 max-w-xl mx-auto">Projects tailored to your academic level and requirements</p>
+                    <h2 className="text-3xl sm:text-4xl font-bold text-center mb-4">Solutions for Every Level</h2>
+                    <p className="text-navy-400 text-center mb-14 max-w-xl mx-auto">Projects tailored to your experience level and requirements</p>
 
                     <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-6">
-                        {yearLevels.map((level) => (
-                            <div key={level.year} className="glass-card p-6 text-center hover:border-navy-500/30 transition-all duration-300 group">
-                                <div className="text-4xl mb-4 group-hover:scale-110 transition-transform duration-300">{level.icon}</div>
-                                <h3 className="text-lg font-semibold mb-2">{level.year}</h3>
+                        {experienceLevels.map((level) => (
+                            <div key={level.level} className="glass-card p-6 text-center hover:border-navy-500/30 transition-all duration-300 group">
+                                <h3 className="text-lg font-semibold mb-2">{level.level}</h3>
                                 <p className="text-navy-400 text-sm">{level.desc}</p>
                             </div>
                         ))}
@@ -185,7 +183,7 @@ export default function LandingPage() {
                                 <h3 className="text-lg font-semibold mb-1">{plan.name}</h3>
                                 <p className="text-navy-400 text-sm mb-4">{plan.desc}</p>
                                 <div className="mb-6">
-                                    <span className="text-4xl font-bold">₹{plan.price}</span>
+                                    <span className="text-4xl font-bold">{'\u20B9'}{plan.price}</span>
                                     <span className="text-navy-400 text-sm"> / project</span>
                                 </div>
                                 <ul className="space-y-3 mb-8 flex-1">
@@ -240,11 +238,11 @@ export default function LandingPage() {
                     <span className="text-xl font-bold bg-gradient-to-r from-white to-navy-300 bg-clip-text text-transparent">
                         Astril Studio
                     </span>
-                    <p className="text-navy-400 text-sm mt-4 mb-2">Custom project builds for university students</p>
+                    <p className="text-navy-400 text-sm mt-4 mb-2">End-to-end freelance development for all types of projects</p>
                     <a href="mailto:contact@astrilstore.in" className="text-navy-500 hover:text-navy-400 text-sm transition-colors">
                         contact@astrilstore.in
                     </a>
-                    <p className="text-navy-500/50 text-xs mt-6">© 2026 Astril Studio. All rights reserved.</p>
+                    <p className="text-navy-500/50 text-xs mt-6">&copy; 2026 Astril Studio. All rights reserved.</p>
                 </div>
             </footer>
         </div>

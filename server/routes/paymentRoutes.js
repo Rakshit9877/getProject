@@ -54,16 +54,22 @@ router.post('/create-order', async (req, res) => {
 function deriveTechStack(selectedFeatures) {
     const stack = new Set(['React Frontend']);
     const featureMap = {
+        'Authentication (login/signup)': 'Authentication',
+        'Role-based access control': 'Authentication',
+        'Database integration': ['MongoDB', 'REST API'],
+        'File handling / media uploads': 'File Upload',
+        'Payment integration': 'Payment Gateway',
+        'Admin panel / dashboard': 'Admin Panel',
+        'Search & filtering system': 'MongoDB',
+        'Email notifications': 'Email Integration',
+        'Charts and data visualization': 'Data Visualization',
+        'REST API / connect to external service': 'REST API',
+        // Legacy feature names (backward compat with existing orders)
         'User registration & login': 'Authentication',
         'Role-based access (admin vs regular user)': 'Authentication',
         'Store and display data (database needed)': ['MongoDB', 'REST API'],
         'File / image uploads': 'File Upload',
-        'Payment integration': 'Payment Gateway',
-        'Admin panel / dashboard': 'Admin Panel',
         'Search and filter functionality': 'MongoDB',
-        'Email notifications': 'Email Integration',
-        'Charts and data visualization': 'Data Visualization',
-        'REST API / connect to external service': 'REST API',
     };
 
     let needsBackend = false;
@@ -74,10 +80,14 @@ function deriveTechStack(selectedFeatures) {
             else stack.add(mapped);
             needsBackend = true;
         }
-        if (['Store and display data (database needed)', 'User registration & login',
+        if (['Database integration', 'Authentication (login/signup)',
+            'Role-based access control', 'File handling / media uploads',
+            'Payment integration', 'Search & filtering system',
+            'Email notifications', 'REST API / connect to external service',
+            // Legacy names
+            'Store and display data (database needed)', 'User registration & login',
             'Role-based access (admin vs regular user)', 'File / image uploads',
-            'Payment integration', 'Search and filter functionality',
-            'Email notifications', 'REST API / connect to external service'].includes(feature)) {
+            'Search and filter functionality'].includes(feature)) {
             needsBackend = true;
         }
     }
@@ -88,12 +98,12 @@ function deriveTechStack(selectedFeatures) {
 // POST /api/payment/verify — Verify Razorpay payment signature and SAVE the exact paid order
 router.post('/verify', async (req, res) => {
     try {
-        const { 
-            razorpay_order_id, razorpay_payment_id, razorpay_signature, 
+        const {
+            razorpay_order_id, razorpay_payment_id, razorpay_signature,
             name, email, university, yearOfStudy, projectTitle, projectDescription,
             selectedFeatures, complexityLevel, featureCount, featureList,
             deadlinePreference, referenceWebsites, githubRepoUrl, collaboratorConfirmed,
-            couponCode, discountApplied, originalAmount 
+            couponCode, discountApplied, originalAmount
         } = req.body;
 
         // Verify Razorpay signature
@@ -138,14 +148,14 @@ router.post('/verify', async (req, res) => {
 
             // Customer Info
             name, email, university, yearOfStudy,
-            
+
             // Project Info
             projectTitle, projectDescription,
             selectedFeatures: selectedFeatures || [],
             techStack,
             complexityLevel, featureCount: featureCount || '1-3', featureList,
             deadlinePreference, referenceWebsites,
-            
+
             // GitHub
             githubRepoUrl: githubRepoUrl?.trim(),
             collaboratorConfirmed,
@@ -165,7 +175,7 @@ router.post('/verify', async (req, res) => {
         try {
             sendCustomerConfirmation(order);
             sendAdminNotification(order);
-        } catch(e) {
+        } catch (e) {
             console.error('Failed to send confirmation emails (non-blocking):', e);
         }
 

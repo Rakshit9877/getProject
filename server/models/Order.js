@@ -42,8 +42,8 @@ const orderSchema = new mongoose.Schema({
     // All existing fields
     name: { type: String, required: true },
     email: { type: String, required: true },
-    university: { type: String, required: true },
-    yearOfStudy: { type: String, required: true },
+    university: { type: String, default: '' },
+    yearOfStudy: { type: String, default: '' },
     projectTitle: { type: String, required: true },
     projectDescription: { type: String, required: true },
     selectedFeatures: { type: [String], default: [] },

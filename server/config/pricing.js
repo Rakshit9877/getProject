@@ -5,15 +5,15 @@ const pricing = {
 };
 
 const pricingLabels = {
-  semi_built: 'Semi Built',
-  basic: 'Full Basic Project',
-  extended: 'Full Project + Extended Features',
+  semi_built: 'Starter',
+  basic: 'Standard Project',
+  extended: 'Premium Project',
 };
 
 const complexityDescriptions = {
-  semi_built: 'Core structure ready — a few features left for you to add',
-  basic: 'A complete, fully working project covering all requirements',
-  extended: 'Full project plus advanced features, polish, and extras',
+  semi_built: 'Base structure with partial implementation',
+  basic: 'Fully functional project with clean and scalable code',
+  extended: 'Advanced solution with scalability, performance optimization, and premium features for any domain',
 };
 
 const pricingFeatures = {
@@ -32,7 +32,7 @@ const pricingFeatures = {
     'README with setup instructions',
   ],
   extended: [
-    'Everything in Full Basic',
+    'Everything in Standard',
     'Additional advanced features',
     'UI polish and responsiveness',
     'GitHub delivery',

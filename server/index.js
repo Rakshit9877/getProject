@@ -52,11 +52,11 @@ const PORT = process.env.PORT || 5001;
 const requiredEnvVars = ['MONGODB_URI', 'JWT_SECRET', 'RAZORPAY_KEY_ID', 'RAZORPAY_KEY_SECRET'];
 const missingVars = requiredEnvVars.filter(v => !process.env[v]);
 if (missingVars.length > 0) {
-    console.error(`❌ Missing required environment variables: ${missingVars.join(', ')}`);
+    console.error(`[ERROR] Missing required environment variables: ${missingVars.join(', ')}`);
     process.exit(1);
 }
 
-console.log(`🔧 Starting server on port ${PORT}...`);
+console.log(`[INFO] Starting server on port ${PORT}...`);
 
 // Seed default coupons
 async function seedCoupons() {
@@ -69,7 +69,7 @@ async function seedCoupons() {
         const exists = await Coupon.findOne({ code: c.code });
         if (!exists) {
             await Coupon.create(c);
-            console.log(`🎟️  Seeded ${c.code}`);
+            console.log(`[INFO] Seeded ${c.code}`);
         }
     }
 }
@@ -77,13 +77,13 @@ async function seedCoupons() {
 mongoose
     .connect(process.env.MONGODB_URI)
     .then(async () => {
-        console.log('✅ Connected to MongoDB');
+        console.log('[OK] Connected to MongoDB');
         await seedCoupons();
         app.listen(PORT, () => {
-            console.log(`🚀 Server running on port ${PORT}`);
+            console.log(`[OK] Server running on port ${PORT}`);
         });
     })
     .catch((err) => {
-        console.error('❌ MongoDB connection error:', err.message);
+        console.error('[ERROR] MongoDB connection error:', err.message);
         process.exit(1);
     });

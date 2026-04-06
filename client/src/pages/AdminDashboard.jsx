@@ -164,7 +164,7 @@ export default function AdminDashboard() {
                 <div className="flex items-center gap-1 mb-8 bg-navy-900/50 rounded-xl p-1 w-fit">
                     {['orders', 'coupons'].map(tab => (
                         <button key={tab} onClick={() => setActiveTab(tab)} className={`px-5 py-2 rounded-lg text-sm font-medium transition-all ${activeTab === tab ? 'bg-navy-500 text-white' : 'text-navy-400 hover:text-white'}`}>
-                            {tab === 'orders' ? '📦 Orders' : '🎟️ Coupons'}
+                            {tab === 'orders' ? 'Orders' : 'Coupons'}
                         </button>
                     ))}
                 </div>

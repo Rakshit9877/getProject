@@ -1,44 +1,38 @@
+import { useState, useEffect } from 'react'
+
+const DEADLINE_STOPS = [
+    { label: 'Standard Timeline', sub: '7–10 days', price: 0, value: 'Standard (7-10 days)' },
+    { label: 'Standard', sub: '4–7 days', price: 200, value: 'Standard Fast (4-7 days)' },
+    { label: 'Priority Delivery', sub: '1–3 days', price: 500, value: 'Priority (1-3 days)' },
+    { label: 'Express Delivery', sub: 'Few Hours', price: 800, value: 'Express (Few Hours)' },
+]
+
 export default function StepTwo({ formData, updateField, errors }) {
     const featureGroups = [
         {
             title: 'Pages & Structure',
-            icon: '🏗️',
             features: [
-                'Simple single-page app (1–2 pages)',
-                'Multi-page website (3–6 pages)',
+                'Landing page / simple app',
+                'Multi-page application',
                 'Admin panel / dashboard',
             ],
         },
         {
             title: 'User Features',
-            icon: '👤',
             features: [
-                'User registration & login',
+                'Authentication (login/signup)',
                 'User profile page',
-                'Role-based access (admin vs regular user)',
+                'Role-based access control',
             ],
         },
         {
             title: 'Data & Storage',
-            icon: '💾',
             features: [
-                'Store and display data (database needed)',
-                'File / image uploads',
-                'Search and filter functionality',
+                'Database integration',
+                'File handling / media uploads',
+                'Search & filtering system',
             ],
         },
-        /* Temporarily hidden as per request
-        {
-            title: 'External & Advanced',
-            icon: '⚡',
-            features: [
-                'Payment integration',
-                'Email notifications',
-                'Charts and data visualization',
-                'REST API / connect to external service',
-            ],
-        },
-        */
     ]
 
     const selected = formData.selectedFeatures || []
@@ -66,10 +60,37 @@ export default function StepTwo({ formData, updateField, errors }) {
         }
     }
 
+    // Deadline slider state
+    const currentDeadlineIndex = DEADLINE_STOPS.findIndex(s => s.value === formData.deadlinePreference)
+    const [sliderIndex, setSliderIndex] = useState(currentDeadlineIndex >= 0 ? currentDeadlineIndex : 0)
+
+    useEffect(() => {
+        const idx = DEADLINE_STOPS.findIndex(s => s.value === formData.deadlinePreference)
+        if (idx >= 0) setSliderIndex(idx)
+    }, [formData.deadlinePreference])
+
+    const handleSliderChange = (e) => {
+        const idx = parseInt(e.target.value, 10)
+        setSliderIndex(idx)
+        const stop = DEADLINE_STOPS[idx]
+        updateField('deadlinePreference', stop.value)
+        updateField('urgencyFee', stop.price)
+    }
+
+    // Set default deadline if not set
+    useEffect(() => {
+        if (!formData.deadlinePreference) {
+            updateField('deadlinePreference', DEADLINE_STOPS[0].value)
+            updateField('urgencyFee', 0)
+        }
+    }, [])
+
+    const activeStop = DEADLINE_STOPS[sliderIndex] || DEADLINE_STOPS[0]
+
     return (
         <div>
             <h2 className="text-xl font-semibold mb-1">Project Details</h2>
-            <p className="text-navy-400 text-sm mb-6">Tell us about your project and what it needs</p>
+            <p className="text-navy-400 text-sm mb-6">Describe your project requirements and expected outcome</p>
 
             <div className="space-y-5">
                 {/* Project Title */}
@@ -79,7 +100,7 @@ export default function StepTwo({ formData, updateField, errors }) {
                     </label>
                     <input
                         type="text"
-                        placeholder="e.g. Student Attendance System"
+                        placeholder="e.g. E-commerce Website / Data Dashboard / Smart System"
                         value={formData.projectTitle}
                         onChange={(e) => updateField('projectTitle', e.target.value)}
                         className="input-field"
@@ -93,7 +114,7 @@ export default function StepTwo({ formData, updateField, errors }) {
                         Project Description <span className="text-red-400">*</span>
                     </label>
                     <textarea
-                        placeholder="Describe what your project should do, key features, and any specific requirements..."
+                        placeholder="Explain your idea, features, tech preferences, or problem statement"
                         value={formData.projectDescription}
                         onChange={(e) => updateField('projectDescription', e.target.value)}
                         rows={4}
@@ -109,13 +130,13 @@ export default function StepTwo({ formData, updateField, errors }) {
                 {/* Feature Cards */}
                 <div>
                     <label className="text-sm text-navy-300 block mb-3">
-                        What does your project need? <span className="text-navy-500">(Select all that apply)</span>
+                        Select required features (optional) <span className="text-navy-500">(Select all that apply)</span>
                     </label>
                     <div className="space-y-5">
                         {featureGroups.map(group => (
                             <div key={group.title}>
                                 <p className="text-xs font-semibold text-navy-500 uppercase tracking-wider mb-2 flex items-center gap-1.5">
-                                    <span>{group.icon}</span> {group.title}
+                                    {group.title}
                                 </p>
                                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
                                     {group.features.map(feature => {
@@ -155,7 +176,7 @@ export default function StepTwo({ formData, updateField, errors }) {
                 {/* Additional Notes */}
                 <div>
                     <label className="text-sm text-navy-300 block mb-1.5">
-                        Anything else your project needs? <span className="text-navy-500">(optional)</span>
+                        Additional requirements (optional)
                     </label>
                     <textarea
                         placeholder="Any specific libraries, design references, or special requirements..."
@@ -177,26 +198,26 @@ export default function StepTwo({ formData, updateField, errors }) {
                         {[
                             {
                                 level: 'semi_built',
-                                label: 'Semi Built',
-                                desc: 'Core structure ready — a few features left for you to add',
-                                price: '₹500',
-                                features: ['Project skeleton & structure', 'Core functionality', '2–3 features built', 'GitHub delivery', 'Basic docs'],
+                                label: 'Starter',
+                                desc: 'Base structure with partial implementation',
+                                price: '\u20B9500',
+                                features: ['Project skeleton & structure', 'Core functionality', '2\u20133 features built', 'GitHub delivery', 'Basic docs'],
                                 popular: false,
                             },
                             {
                                 level: 'basic',
-                                label: 'Full Basic Project',
-                                desc: 'A complete, fully working project covering all requirements',
-                                price: '₹1,000',
+                                label: 'Standard Project',
+                                desc: 'Fully functional project with clean and scalable code',
+                                price: '\u20B91,000',
                                 features: ['Fully functional project', 'All core features', 'Clean, readable code', 'GitHub delivery', 'README included'],
                                 popular: true,
                             },
                             {
                                 level: 'extended',
-                                label: 'Full Project + Extended',
-                                desc: 'Full project plus advanced features, polish, and extras',
-                                price: '₹1,500',
-                                features: ['Everything in Basic', 'Advanced features', 'UI polish & responsive', 'GitHub delivery', 'Full documentation'],
+                                label: 'Premium Project',
+                                desc: 'Advanced solution with scalability, performance optimization, and premium features for any domain',
+                                price: '\u20B91,500',
+                                features: ['Everything in Standard', 'Advanced features', 'UI polish & responsive', 'GitHub delivery', 'Full documentation'],
                                 popular: false,
                             },
                         ].map(({ level, label, desc, price, features, popular }) => (
@@ -239,39 +260,69 @@ export default function StepTwo({ formData, updateField, errors }) {
                     {errors.complexityLevel && <p className="text-red-400 text-xs mt-1">{errors.complexityLevel}</p>}
                 </div>
 
-                {/* Deadline Preference */}
+                {/* Delivery Timeline - Slider Bar */}
                 <div>
                     <label className="text-sm text-navy-300 block mb-2">
-                        Deadline Preference <span className="text-red-400">*</span>
+                        Delivery Timeline <span className="text-red-400">*</span>
                     </label>
-                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
-                        {[
-                            { value: 'Relaxed (7-10 days)', label: 'Relaxed', sub: '7–10 days' },
-                            { value: 'Standard (4-7 days)', label: 'Standard', sub: '4–7 days' },
-                            { value: 'Urgent (1 day)', label: 'Urgent (Full)', sub: '1 Day Delivery' },
-                            { 
-                                value: 'Emergency (Few Hours)', 
-                                label: 'Emergency (Semi Built)', 
-                                sub: 'Few Hours',
-                                desc: 'Evaluations going on and still not done? Get your project in a few hours!'
-                            },
-                        ].map(({ value, label, sub, desc }) => (
-                            <button
-                                key={value}
-                                type="button"
-                                onClick={() => updateField('deadlinePreference', value)}
-                                className={`p-3 rounded-xl border text-center transition-all flex flex-col justify-center ${
-                                    formData.deadlinePreference === value
-                                        ? 'bg-navy-500/15 border-navy-500/50 text-white'
-                                        : 'bg-navy-900/30 border-white/10 text-navy-400 hover:border-white/20'
-                                }`}
-                            >
-                                <div className="font-semibold text-sm">{label}</div>
-                                <div className="text-xs text-navy-500">{sub}</div>
-                                {desc && <div className="text-[10px] text-emerald-400 leading-tight mt-1.5">{desc}</div>}
-                            </button>
-                        ))}
+
+                    <div className="bg-navy-900/50 border border-white/10 rounded-xl p-5">
+                        {/* Current selection display */}
+                        <div className="flex items-center justify-between mb-4">
+                            <div>
+                                <div className="text-base font-semibold text-white">{activeStop.label}</div>
+                                <div className="text-xs text-navy-400">{activeStop.sub}</div>
+                            </div>
+                            <div className="text-right">
+                                <div className={`text-lg font-bold ${activeStop.price > 0 ? 'text-amber-400' : 'text-emerald-400'}`}>
+                                    {activeStop.price > 0 ? `+\u20B9${activeStop.price}` : '+\u20B90'}
+                                </div>
+                                <div className="text-[10px] text-navy-500">urgency fee</div>
+                            </div>
+                        </div>
+
+                        {/* Slider */}
+                        <div className="relative pt-2 pb-1">
+                            <input
+                                type="range"
+                                min={0}
+                                max={DEADLINE_STOPS.length - 1}
+                                step={1}
+                                value={sliderIndex}
+                                onChange={handleSliderChange}
+                                className="deadline-slider w-full"
+                            />
+                        </div>
+
+                        {/* Labels under slider */}
+                        <div className="flex justify-between mt-2">
+                            {DEADLINE_STOPS.map((stop, i) => (
+                                <button
+                                    key={stop.value}
+                                    type="button"
+                                    onClick={() => {
+                                        setSliderIndex(i)
+                                        updateField('deadlinePreference', stop.value)
+                                        updateField('urgencyFee', stop.price)
+                                    }}
+                                    className={`text-center flex-1 transition-colors ${
+                                        i === sliderIndex ? 'text-white' : 'text-navy-500 hover:text-navy-400'
+                                    }`}
+                                >
+                                    <div className="text-[10px] font-medium leading-tight">{stop.label}</div>
+                                    <div className="text-[9px] opacity-70">{stop.sub}</div>
+                                </button>
+                            ))}
+                        </div>
+
+                        {/* Hint text */}
+                        {activeStop.price > 0 && (
+                            <p className="text-[11px] text-amber-400/80 mt-3 text-center">
+                                Need it fast? Get priority delivery within hours
+                            </p>
+                        )}
                     </div>
+
                     {errors.deadlinePreference && <p className="text-red-400 text-xs mt-1">{errors.deadlinePreference}</p>}
                 </div>
 

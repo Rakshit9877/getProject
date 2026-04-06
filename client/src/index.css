@@ -61,3 +61,48 @@
 .razorpay-container {
   z-index: 9999 !important;
 }
+
+/* Deadline Slider */
+.deadline-slider {
+  -webkit-appearance: none;
+  appearance: none;
+  height: 6px;
+  border-radius: 999px;
+  background: linear-gradient(to right, #10b981, #f59e0b, #ef4444);
+  outline: none;
+  cursor: pointer;
+}
+
+.deadline-slider::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  background: white;
+  border: 3px solid #6366f1;
+  box-shadow: 0 0 10px rgba(99, 102, 241, 0.4);
+  cursor: pointer;
+  transition: box-shadow 0.2s, transform 0.2s;
+}
+
+.deadline-slider::-webkit-slider-thumb:hover {
+  box-shadow: 0 0 16px rgba(99, 102, 241, 0.6);
+  transform: scale(1.1);
+}
+
+.deadline-slider::-moz-range-thumb {
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  background: white;
+  border: 3px solid #6366f1;
+  box-shadow: 0 0 10px rgba(99, 102, 241, 0.4);
+  cursor: pointer;
+}
+
+.deadline-slider::-moz-range-track {
+  height: 6px;
+  border-radius: 999px;
+  background: linear-gradient(to right, #10b981, #f59e0b, #ef4444);
+}

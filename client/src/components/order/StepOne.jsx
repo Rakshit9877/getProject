@@ -1,8 +1,8 @@
 export default function StepOne({ formData, updateField, errors }) {
   return (
     <div>
-      <h2 className="text-xl font-semibold mb-1">About You</h2>
-      <p className="text-navy-400 text-sm mb-6">Tell us a bit about yourself</p>
+      <h2 className="text-xl font-semibold mb-1">Client Information</h2>
+      <p className="text-navy-400 text-sm mb-6">Tell us who you are and how we can reach you</p>
 
       <div className="space-y-5">
         {/* Full Name */}
@@ -26,16 +26,16 @@ export default function StepOne({ formData, updateField, errors }) {
             id="email"
             type="email"
             className="input-field"
-            placeholder="e.g., rahul@university.edu"
+            placeholder="e.g., you@example.com"
             value={formData.email}
             onChange={(e) => updateField('email', e.target.value)}
           />
           {errors.email && <p className="input-error">{errors.email}</p>}
         </div>
 
-        {/* University */}
+        {/* Organization */}
         <div>
-          <label htmlFor="university" className="input-label">University / Institution *</label>
+          <label htmlFor="university" className="input-label">Organization / College (optional)</label>
           <input
             id="university"
             type="text"
@@ -47,21 +47,20 @@ export default function StepOne({ formData, updateField, errors }) {
           {errors.university && <p className="input-error">{errors.university}</p>}
         </div>
 
-        {/* Year of Study */}
+        {/* Experience Level */}
         <div>
-          <label htmlFor="yearOfStudy" className="input-label">Year of Study *</label>
+          <label htmlFor="yearOfStudy" className="input-label">Experience Level (optional)</label>
           <select
             id="yearOfStudy"
             className="input-field"
             value={formData.yearOfStudy}
             onChange={(e) => updateField('yearOfStudy', e.target.value)}
           >
-            <option value="">Select your year</option>
-            <option value="Year 1">Year 1</option>
-            <option value="Year 2">Year 2</option>
-            <option value="Year 3">Year 3</option>
-            <option value="Year 4">Year 4</option>
-            <option value="Other">Other</option>
+            <option value="">Select your level</option>
+            <option value="Beginner">Beginner</option>
+            <option value="Intermediate">Intermediate</option>
+            <option value="Advanced">Advanced</option>
+            <option value="Professional">Professional</option>
           </select>
           {errors.yearOfStudy && <p className="input-error">{errors.yearOfStudy}</p>}
         </div>

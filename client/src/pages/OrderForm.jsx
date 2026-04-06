@@ -8,13 +8,14 @@ import StepFour from '../components/order/StepFour'
 
 const API = import.meta.env.VITE_API_URL || ''
 
-const steps = ['About You', 'Project Details', 'GitHub Setup', 'Review & Pay']
+const steps = ['Client Information', 'Project Details', 'Project Delivery Setup', 'Order Summary']
 
 const initialFormData = {
     name: '',
     email: '',
     university: '',
     yearOfStudy: '',
+    urgencyFee: 0,
     projectTitle: '',
     projectDescription: '',
     selectedFeatures: [],
@@ -54,14 +55,12 @@ export default function OrderForm() {
             if (!formData.name.trim()) newErrors.name = 'Full name is required'
             if (!formData.email.trim()) newErrors.email = 'Email is required'
             else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.email)) newErrors.email = 'Invalid email format'
-            if (!formData.university.trim()) newErrors.university = 'University name is required'
-            if (!formData.yearOfStudy) newErrors.yearOfStudy = 'Year of study is required'
         }
         if (step === 1) {
             if (!formData.projectTitle.trim()) newErrors.projectTitle = 'Project title is required'
             if (!formData.projectDescription.trim()) newErrors.projectDescription = 'Project description is required'
             else if (formData.projectDescription.length > 500) newErrors.projectDescription = 'Description must be 500 characters or less'
-            if (!formData.selectedFeatures || formData.selectedFeatures.length === 0) newErrors.selectedFeatures = 'Please select at least one feature for your project'
+
             if (!formData.complexityLevel) newErrors.complexityLevel = 'Complexity level is required'
             if (!formData.deadlinePreference) newErrors.deadlinePreference = 'Deadline preference is required'
         }
@@ -103,7 +102,9 @@ export default function OrderForm() {
         setPaymentLoading(true)
         try {
             const originalAmount = config?.pricing?.[formData.complexityLevel] || 0
-            const finalAmount = coupon ? coupon.discountedPrice : originalAmount
+            const urgencyFee = formData.urgencyFee || 0
+            const baseWithUrgency = originalAmount + urgencyFee
+            const finalAmount = coupon ? (coupon.discountedPrice + urgencyFee) : baseWithUrgency
 
             // 1. Initiate Razorpay order (no DB save)
             const initiateRes = await axios.post(`${API}/api/payment/create-order`, {
@@ -161,7 +162,7 @@ export default function OrderForm() {
                                     email: customerEmail,
                                 })
                                 // Wipe form data fresh
-                                setFormData({ name: '', email: '', university: '', yearOfStudy: '', projectTitle: '', projectDescription: '', complexityLevel: '', featureCount: '1-3', featureList: '', deadlinePreference: '', referenceWebsites: '', githubRepoUrl: '', collaboratorConfirmed: false, selectedFeatures: [] })
+                                setFormData({ name: '', email: '', university: '', yearOfStudy: '', projectTitle: '', projectDescription: '', complexityLevel: '', featureCount: '1-3', featureList: '', deadlinePreference: '', referenceWebsites: '', githubRepoUrl: '', collaboratorConfirmed: false, selectedFeatures: [], urgencyFee: 0 })
                                 setCurrentStep(0)
                                 setCoupon(null)
 
