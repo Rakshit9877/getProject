@@ -221,9 +221,9 @@ export default function OrderForm() {
     // ========== SUCCESS UI (rendered inline, no redirect) ==========
     if (orderSuccess) {
         return (
-            <div className="min-h-screen pb-20">
+            <div className="min-h-screen flex flex-col">
                 {/* Top Navbar */}
-                <nav className="sticky top-0 z-50 bg-navy-950/80 backdrop-blur-xl border-b border-white/5 mb-8">
+                <nav className="sticky top-0 z-50 bg-navy-950/80 backdrop-blur-xl border-b border-white/5">
                     <div className="max-w-4xl mx-auto px-4 h-16 flex items-center justify-between">
                         <Link to="/" className="text-xl font-bold bg-gradient-to-r from-white to-navy-300 bg-clip-text text-transparent">
                             Astril Studio
@@ -234,7 +234,7 @@ export default function OrderForm() {
                         </Link>
                     </div>
                 </nav>
-                <div className="flex items-center justify-center px-4">
+                <div className="flex-1 flex items-center justify-center px-4 py-12">
                     <div className="glass-card p-8 sm:p-10 max-w-lg w-full text-center">
                         {/* Success Icon */}
                     <div className="w-20 h-20 mx-auto mb-6 rounded-full bg-emerald-500/10 border-2 border-emerald-500/30 flex items-center justify-center">
