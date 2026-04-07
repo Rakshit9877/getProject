@@ -278,11 +278,11 @@ export default function OrderForm() {
                     </div>
 
                     {/* Action Buttons */}
-                    <div className="flex flex-col sm:flex-row items-center gap-3 mb-6">
-                        <Link to="/track" className="btn-primary w-full sm:w-auto text-center">
+                    <div className="flex flex-col sm:flex-row items-stretch gap-3 mb-6">
+                        <Link to="/track" className="btn-primary flex-1 text-center">
                             Track Your Order →
                         </Link>
-                        <Link to="/" className="btn-ghost w-full sm:w-auto text-center border border-white/10">
+                        <Link to="/" className="btn-ghost flex-1 text-center border border-white/10">
                             Go Home
                         </Link>
                     </div>
