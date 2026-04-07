@@ -69,13 +69,7 @@ export default function StepTwo({ formData, updateField, errors }) {
         if (idx >= 0) setSliderIndex(idx)
     }, [formData.deadlinePreference])
 
-    const handleSliderChange = (e) => {
-        const idx = parseInt(e.target.value, 10)
-        setSliderIndex(idx)
-        const stop = DEADLINE_STOPS[idx]
-        updateField('deadlinePreference', stop.value)
-        updateField('urgencyFee', stop.price)
-    }
+
 
     // Set default deadline if not set
     useEffect(() => {
@@ -260,7 +254,7 @@ export default function StepTwo({ formData, updateField, errors }) {
                     {errors.complexityLevel && <p className="text-red-400 text-xs mt-1">{errors.complexityLevel}</p>}
                 </div>
 
-                {/* Delivery Timeline - Slider Bar */}
+                {/* Delivery Timeline - Snap Slider */}
                 <div>
                     <label className="text-sm text-navy-300 block mb-2">
                         Delivery Timeline <span className="text-red-400">*</span>
@@ -268,7 +262,7 @@ export default function StepTwo({ formData, updateField, errors }) {
 
                     <div className="bg-navy-900/50 border border-white/10 rounded-xl p-5">
                         {/* Current selection display */}
-                        <div className="flex items-center justify-between mb-4">
+                        <div className="flex items-center justify-between mb-6">
                             <div>
                                 <div className="text-base font-semibold text-white">{activeStop.label}</div>
                                 <div className="text-xs text-navy-400">{activeStop.sub}</div>
@@ -281,43 +275,85 @@ export default function StepTwo({ formData, updateField, errors }) {
                             </div>
                         </div>
 
-                        {/* Slider */}
-                        <div className="relative pt-2 pb-1">
-                            <input
-                                type="range"
-                                min={0}
-                                max={DEADLINE_STOPS.length - 1}
-                                step={1}
-                                value={sliderIndex}
-                                onChange={handleSliderChange}
-                                className="deadline-slider w-full"
+                        {/* Custom Snap Slider */}
+                        <div className="relative px-2">
+                            {/* Track background */}
+                            <div className="absolute top-[9px] left-2 right-2 h-[6px] rounded-full"
+                                style={{ background: 'linear-gradient(to right, #10b981, #f59e0b, #ef4444)' }}
                             />
+
+                            {/* Active fill overlay */}
+                            <div className="absolute top-[9px] left-2 h-[6px] rounded-full bg-navy-950/40 transition-all duration-300 ease-out"
+                                style={{
+                                    left: `calc(${(sliderIndex / (DEADLINE_STOPS.length - 1)) * 100}% + 8px)`,
+                                    right: '8px',
+                                }}
+                            />
+
+                            {/* Clickable track area */}
+                            <div className="relative h-6 flex items-center">
+                                {DEADLINE_STOPS.map((stop, i) => {
+                                    const pct = (i / (DEADLINE_STOPS.length - 1)) * 100
+                                    const isFirst = i === 0
+                                    const isLast = i === DEADLINE_STOPS.length - 1
+                                    return (
+                                        <button
+                                            key={stop.value}
+                                            type="button"
+                                            onClick={() => {
+                                                setSliderIndex(i)
+                                                updateField('deadlinePreference', stop.value)
+                                                updateField('urgencyFee', stop.price)
+                                            }}
+                                            className={`absolute z-10 ${isFirst ? '' : isLast ? '-translate-x-full' : '-translate-x-1/2'}`}
+                                            style={{ left: `${pct}%` }}
+                                        >
+                                            {i === sliderIndex ? (
+                                                <div className="w-6 h-6 rounded-full bg-white border-[3px] border-indigo-500 shadow-[0_0_12px_rgba(99,102,241,0.5)] transition-all duration-300" />
+                                            ) : (
+                                                <div className="w-3 h-3 rounded-full bg-navy-700 border-2 border-navy-600 hover:bg-navy-500 hover:border-navy-400 transition-all duration-200 cursor-pointer" />
+                                            )}
+                                        </button>
+                                    )
+                                })}
+                            </div>
+
+                            {/* Labels centered below each stop */}
+                            <div className="relative mt-3">
+                                {DEADLINE_STOPS.map((stop, i) => {
+                                    const pct = (i / (DEADLINE_STOPS.length - 1)) * 100
+                                    const isFirst = i === 0
+                                    const isLast = i === DEADLINE_STOPS.length - 1
+                                    return (
+                                        <button
+                                            key={stop.value}
+                                            type="button"
+                                            onClick={() => {
+                                                setSliderIndex(i)
+                                                updateField('deadlinePreference', stop.value)
+                                                updateField('urgencyFee', stop.price)
+                                            }}
+                                            className={`absolute transition-colors cursor-pointer ${
+                                                isFirst ? 'text-left' : isLast ? 'text-right -translate-x-full' : 'text-center -translate-x-1/2'
+                                            } ${
+                                                i === sliderIndex ? 'text-white' : 'text-navy-500 hover:text-navy-400'
+                                            }`}
+                                            style={{ left: `${pct}%` }}
+                                        >
+                                            <div className="text-[10px] font-medium leading-tight whitespace-nowrap">{stop.label}</div>
+                                            <div className="text-[9px] opacity-70 whitespace-nowrap">{stop.sub}</div>
+                                        </button>
+                                    )
+                                })}
+                            </div>
                         </div>
 
-                        {/* Labels under slider */}
-                        <div className="flex justify-between mt-2">
-                            {DEADLINE_STOPS.map((stop, i) => (
-                                <button
-                                    key={stop.value}
-                                    type="button"
-                                    onClick={() => {
-                                        setSliderIndex(i)
-                                        updateField('deadlinePreference', stop.value)
-                                        updateField('urgencyFee', stop.price)
-                                    }}
-                                    className={`text-center flex-1 transition-colors ${
-                                        i === sliderIndex ? 'text-white' : 'text-navy-500 hover:text-navy-400'
-                                    }`}
-                                >
-                                    <div className="text-[10px] font-medium leading-tight">{stop.label}</div>
-                                    <div className="text-[9px] opacity-70">{stop.sub}</div>
-                                </button>
-                            ))}
-                        </div>
+                        {/* Spacer for labels */}
+                        <div className="h-8" />
 
                         {/* Hint text */}
                         {activeStop.price > 0 && (
-                            <p className="text-[11px] text-amber-400/80 mt-3 text-center">
+                            <p className="text-[11px] text-amber-400/80 mt-1 text-center">
                                 Need it fast? Get priority delivery within hours
                             </p>
                         )}

@@ -52,7 +52,7 @@ export default function StepOne({ formData, updateField, errors }) {
           <label htmlFor="yearOfStudy" className="input-label">Experience Level (optional)</label>
           <select
             id="yearOfStudy"
-            className="input-field"
+            className="select-field"
             value={formData.yearOfStudy}
             onChange={(e) => updateField('yearOfStudy', e.target.value)}
           >

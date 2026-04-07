@@ -2,10 +2,26 @@ import { Link } from 'react-router-dom'
 import { useState } from 'react'
 
 const experienceLevels = [
-    { level: 'Beginner', desc: 'Simple apps, CRUD systems, and mini-projects' },
-    { level: 'Intermediate', desc: 'Full-stack apps, APIs, and database-driven systems' },
-    { level: 'Advanced', desc: 'Scalable systems, authentication, dashboards' },
-    { level: 'Expert', desc: 'Advanced solutions for complex, specialized, and enterprise-grade projects (Premium tier)' },
+    { 
+        level: 'Beginner', 
+        desc: 'Simple apps, CRUD systems, and mini-projects',
+        icon: <svg className="w-8 h-8 text-navy-400 mx-auto mb-4 group-hover:text-emerald-400 transition-colors duration-300" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4" /></svg>
+    },
+    { 
+        level: 'Intermediate', 
+        desc: 'Full-stack apps, APIs, and database-driven systems',
+        icon: <svg className="w-8 h-8 text-navy-400 mx-auto mb-4 group-hover:text-indigo-400 transition-colors duration-300" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M4 7v10c0 2.21 3.582 4 8 4s8-1.79 8-4V7M4 7c0 2.21 3.582 4 8 4s8-1.79 8-4M4 7c0-2.21 3.582-4 8-4s8 1.79 8 4m0 5c0 2.21-3.582 4-8 4s-8-1.79-8-4" /></svg>
+    },
+    { 
+        level: 'Advanced', 
+        desc: 'Scalable systems, authentication, dashboards',
+        icon: <svg className="w-8 h-8 text-navy-400 mx-auto mb-4 group-hover:text-purple-400 transition-colors duration-300" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M9 3v2m6-2v2M9 19v2m6-2v2M5 9H3m2 6H3m18-6h-2m2 6h-2M7 19h10a2 2 0 002-2V7a2 2 0 00-2-2H7a2 2 0 00-2 2v10a2 2 0 002 2zM9 9h6v6H9V9z" /></svg>
+    },
+    { 
+        level: 'Expert', 
+        desc: 'Advanced solutions for complex, specialized, and enterprise-grade projects (Premium tier)',
+        icon: <svg className="w-8 h-8 text-navy-400 mx-auto mb-4 group-hover:text-sky-400 transition-colors duration-300" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M19.428 15.428a2 2 0 00-1.022-.547l-2.387-.477a6 6 0 00-3.86.517l-.318.158a6 6 0 01-3.86.517L6.05 15.21a2 2 0 00-1.806.547M8 4h8l-1 1v5.172a2 2 0 00.586 1.414l5 5c1.26 1.26.367 3.414-1.415 3.414H4.828c-1.782 0-2.674-2.154-1.414-3.414l5-5A2 2 0 009 10.172V5L8 4z" /></svg>
+    },
 ]
 
 const pricingPlans = [
@@ -70,7 +86,6 @@ export default function LandingPage() {
                         <a href="#pricing" className="btn-ghost text-sm hidden sm:inline-flex">Pricing</a>
                         <a href="#faq" className="btn-ghost text-sm hidden sm:inline-flex">FAQ</a>
                         <Link to="/track" className="btn-ghost text-sm hidden sm:inline-flex">Track Order</Link>
-                        <Link to="/admin" className="btn-ghost text-sm hidden sm:inline-flex">Admin</Link>
                         <Link to="/order" className="btn-primary text-sm !py-2 !px-5">Get Started</Link>
                     </div>
                 </div>
@@ -135,12 +150,28 @@ export default function LandingPage() {
 
                     <div className="grid md:grid-cols-3 gap-8">
                         {[
-                            { step: '01', title: 'Submit Your Requirements', desc: 'Share your idea, requirements, tech stack, or problem statement for any type of project.' },
-                            { step: '02', title: 'Make Payment', desc: 'Secure payment via Razorpay. Work begins immediately after requirement confirmation.' },
-                            { step: '03', title: 'Get Your Project', desc: 'Get your project delivered on GitHub with clean code, documentation, and progress updates.' },
+                            { 
+                                step: '01', 
+                                title: 'Submit Your Requirements', 
+                                desc: 'Share your idea, requirements, tech stack, or problem statement for any type of project.',
+                                icon: <svg className="w-10 h-10 text-indigo-400 mb-6 group-hover:scale-110 transition-transform duration-300" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" /></svg>
+                            },
+                            { 
+                                step: '02', 
+                                title: 'Make Payment', 
+                                desc: 'Secure payment via Razorpay. Work begins immediately after requirement confirmation.',
+                                icon: <svg className="w-10 h-10 text-emerald-400 mb-6 group-hover:scale-110 transition-transform duration-300" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z" /></svg>
+                            },
+                            { 
+                                step: '03', 
+                                title: 'Get Your Project', 
+                                desc: 'Get your project delivered on GitHub with clean code, documentation, and progress updates.',
+                                icon: <svg className="w-10 h-10 text-purple-400 mb-6 group-hover:scale-110 transition-transform duration-300" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M10 20l4-16m4 4l4 4-4 4M6 16l-4-4 4-4" /></svg>
+                            },
                         ].map((item) => (
                             <div key={item.step} className="glass-card p-8 relative group hover:border-navy-500/30 transition-all duration-300">
-                                <div className="text-xs font-mono text-navy-500 mb-4">{item.step}</div>
+                                {item.icon}
+                                <div className="absolute top-8 right-8 text-3xl font-black text-white/5 group-hover:text-white/10 transition-colors">{item.step}</div>
                                 <h3 className="text-lg font-semibold mb-2">{item.title}</h3>
                                 <p className="text-navy-400 text-sm leading-relaxed">{item.desc}</p>
                             </div>
@@ -158,6 +189,7 @@ export default function LandingPage() {
                     <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-6">
                         {experienceLevels.map((level) => (
                             <div key={level.level} className="glass-card p-6 text-center hover:border-navy-500/30 transition-all duration-300 group">
+                                {level.icon}
                                 <h3 className="text-lg font-semibold mb-2">{level.level}</h3>
                                 <p className="text-navy-400 text-sm">{level.desc}</p>
                             </div>

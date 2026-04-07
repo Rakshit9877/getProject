@@ -5,11 +5,11 @@ import axios from 'axios'
 const API = import.meta.env.VITE_API_URL || ''
 
 const stages = [
-    { key: 'pending_verification', label: 'Order Received', icon: '📋' },
-    { key: 'collaborator_verified', label: 'Collaborator Verified', icon: '✅' },
-    { key: 'in_progress', label: 'Development Started', icon: '🚀' },
-    { key: 'review_testing', label: 'Review & Testing', icon: '🔍' },
-    { key: 'completed', label: 'Completed', icon: '🎉' },
+    { key: 'pending_verification', label: 'Order Received', icon: '1' },
+    { key: 'collaborator_verified', label: 'Collaborator Verified', icon: '2' },
+    { key: 'in_progress', label: 'Development Started', icon: '3' },
+    { key: 'review_testing', label: 'Review & Testing', icon: '4' },
+    { key: 'completed', label: 'Completed', icon: '5' },
 ]
 
 function getStageIndex(status) {
@@ -41,12 +41,23 @@ export default function TrackOrder() {
     const activeIndex = order ? getStageIndex(order.status) : -1
 
     return (
-        <div className="min-h-screen py-12 px-4">
-            <div className="max-w-2xl mx-auto">
-                <div className="text-center mb-8">
-                    <Link to="/" className="inline-block text-xl font-bold bg-gradient-to-r from-white to-navy-300 bg-clip-text text-transparent mb-6">
+        <div className="min-h-screen">
+            {/* Top Navbar */}
+            <nav className="sticky top-0 z-50 bg-navy-950/80 backdrop-blur-xl border-b border-white/5">
+                <div className="max-w-2xl mx-auto px-4 h-16 flex items-center justify-between">
+                    <Link to="/" className="text-xl font-bold bg-gradient-to-r from-white to-navy-300 bg-clip-text text-transparent">
                         Astril Studio
                     </Link>
+                    <Link to="/" className="text-navy-400 hover:text-white text-sm flex items-center gap-1 transition-colors">
+                        <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 19l-7-7m0 0l7-7m-7 7h18" /></svg>
+                        <span className="hidden sm:inline">Back to Home</span>
+                    </Link>
+                </div>
+            </nav>
+
+            <div className="py-12 px-4">
+            <div className="max-w-2xl mx-auto">
+                <div className="text-center mb-8">
                     <h1 className="text-2xl sm:text-3xl font-bold mb-2">Track Your Order</h1>
                     <p className="text-navy-400 text-sm">Enter your Order ID to see your project status</p>
                 </div>
@@ -80,7 +91,7 @@ export default function TrackOrder() {
 
                         {order.status === 'refunded' ? (
                             <div className="bg-red-500/10 border border-red-500/20 rounded-xl p-5 text-center">
-                                <p className="text-red-400 font-semibold text-lg">💸 Order Refunded</p>
+                                <p className="text-red-400 font-semibold text-lg">Order Refunded</p>
                             </div>
                         ) : (
                             <div className="bg-navy-900/50 border border-white/10 rounded-xl p-5">
@@ -145,6 +156,7 @@ export default function TrackOrder() {
                         </div>
                     </div>
                 )}
+            </div>
             </div>
         </div>
     )
