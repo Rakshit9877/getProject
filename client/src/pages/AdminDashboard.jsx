@@ -257,7 +257,7 @@ export default function AdminDashboard() {
                                     </div>
                                     <div>
                                         <label className="text-xs text-navy-500 block mb-1">Discount Type</label>
-                                        <select value={couponForm.discountType} onChange={e => setCouponForm(p => ({ ...p, discountType: e.target.value }))} className="input-field text-sm">
+                                        <select value={couponForm.discountType} onChange={e => setCouponForm(p => ({ ...p, discountType: e.target.value }))} className="select-field text-sm">
                                             <option value="percentage">Percentage (%)</option>
                                             <option value="flat">Flat (₹)</option>
                                             <option value="fixed_price">Fixed Price (₹)</option>
@@ -344,7 +344,7 @@ export default function AdminDashboard() {
                             {/* Update Status */}
                             <div className="bg-navy-800/50 rounded-xl p-4 space-y-3">
                                 <h3 className="text-xs font-semibold text-navy-400 uppercase tracking-wider">Update Project Status</h3>
-                                <select value={statusForm.status} onChange={(e) => setStatusForm(p => ({ ...p, status: e.target.value }))} className="input-field !py-2 text-sm w-full">
+                                <select value={statusForm.status} onChange={(e) => setStatusForm(p => ({ ...p, status: e.target.value }))} className="select-field !py-2 text-sm w-full">
                                     {allStatuses.map(s => <option key={s} value={s}>{statusLabels[s]}</option>)}
                                 </select>
                                 <div>
